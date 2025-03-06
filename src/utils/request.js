@@ -32,7 +32,6 @@ request.interceptors.response.use(
         // 当权限验证不通过的时候给出提示
         if (res.code === '401') {
             ElMessage.error(res.msg);
-            router.push("/login")
         }
         return res;
     },

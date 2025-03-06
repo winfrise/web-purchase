@@ -25,9 +25,7 @@ const router = createRouter({
 
         { path: 'tools/load-excel', name: 'LOAD_EXCEL', component: () => import('@/views/tools/load-excel.vue')},
       ]
-    },
-    {path: '/login', name: 'Login', component: () => import('@/views/Login.vue')},
-    {path: '/register', name: 'Register', component: () => import('@/views/Register.vue')}
+    }
   ]
 })
 
