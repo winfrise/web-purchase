@@ -62,20 +62,20 @@
           <el-sub-menu index="4">
             <template #title>
               <el-icon><User /></el-icon>
-              <span>计划管理</span>
+              <span>计算</span>
             </template>
 
          
 
-            <el-menu-item index="/month-plan/plan103">
+            <el-menu-item index="/calc/plan103">
               <span>豫北计划</span>
             </el-menu-item>
 
-            <el-menu-item index="/month-plan/gen-part-list">
+            <el-menu-item index="/calc/gen-part-list">
               <span>生成零件列表</span>
             </el-menu-item>
 
-            <el-menu-item index="/month-plan/gen-plan">
+            <el-menu-item index="/calc/gen-plan">
               <span>生成计划</span>
             </el-menu-item>
           </el-sub-menu>

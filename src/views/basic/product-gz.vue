@@ -2,17 +2,31 @@
 <template>
   <div>
     <div class="card">
-      高正产品
+      <div style="display: flex; justify-content: space-between;">
+        <div>高正产品</div>
+
+
+        <div style="display: flex;">
+            <el-upload accept=".xlsx" :before-upload="beforeUpload">
+              <el-button type="primary">上传产品列表</el-button>
+            </el-upload>
+
+            <el-button type="danger" @click="clearData" style="margin-left: 15px;">删除数据</el-button>
+        </div>
+      </div>
+
+
     </div>
     <div class="card" style="margin-top: 10px;">
-
       <el-table border
         :data="tableData"
         style="width: 100%; margin-bottom: 20px"
       >
         <el-table-column type="index" label="序号" width="60" />
-        <el-table-column prop="name" label="产品型号" />
-        <el-table-column label="是否有组成">
+
+        <el-table-column v-for="(item, index) in tableCell" :prop="item.prop" :label="item.label" :key="index" />
+
+        <el-table-column label="是否有组成" fixed="right">
           <template #default="scope">
             <span>{{ scope.row.hasConsist ? "是" : "-" }}</span>
           </template>
@@ -25,38 +39,56 @@
 </template>
 
 <script setup>
-import {ref} from "vue"
+import {computed, ref} from "vue"
+import loadExcel from '@/utils/loadExcel'
 
-const rawProduct = [
-  'ES6KA', 'ES10ZKB', 'ES10ZLD', 'ES10ZRA', 'ES10ZRB', 
-  'ES6ZX1-J402', 'ES6FA2', 'ES6FB', 'ES6FA', 'ES10ZKA', 
-  'ES10ZKA', 'ES10WTA', 'ES11WMA', 'ES8ZXB', 'ES8ZXB', 
-  'ES10WXB', 'ES8ZXC', 'ES6ZD', 'ES8ZTB', 'ES8ZTD', 
-  'ES8ZTC', 'ES8ZTC1', 'ES10ZTB', 'ES10WTB', 'ES10ZTC-J301', 
-  'ES10WTC', 'ESZ8HB1', 'ESZ8HB2', 'ES8ZXL', 'ES11ZXC1', 
-  'ES11ZXC1', 'ES10ZXP', 'ES10ZXP', 'ES10ZXP', 'ES10ZXB',
-  'ES10ZXB', 'ES10ZHB1', 'ES10ZXK-J308', 'ES10ZXA', 'ES11WA1', 
-  'ES11WA5', 'ES6FA3', 'ES6FA5', 'ES6ZYA', 'ES7A-J202401', 
-  'ES11ZG1', 'ES11ZXA', 'ES8ZXD', 'ES11ZXF', 'ES11ZD', 
-  'ES11ZD', 'ES11ZDC', 'ES11ZDC1', 'ES8ZAE', 'ES8ZAE', 
-  'ES8ZAG-J501', 'ES10ZDE', 'ES10ZMA', 'ES10ZMB', 'ES6MB', 
-  'ES6L4', 'ES10ZHB2', 'ES8ZXK', 'ES8ZXK', 'ES8ZAD', 
-  'ES8ZAD'
-]
-
-const localProductConsist = localStorage.getItem('product-consist')
-
-const productConsist = JSON.parse(localProductConsist)
-
-sessionStorage.setItem('product-gz', rawProduct.join(','))
+const productConsistMap = JSON.parse(localStorage.getItem('productConsistMap')) || {}
+const localProductGZ = JSON.parse(localStorage.getItem('productGZ'))
 
 
-const productList = ref(rawProduct)
+const productGZ = ref([])
+if (localProductGZ) {
+  productGZ.value = localProductGZ
+}
 
-const tableData = rawProduct.map(item => {
-  return {name: item, hasConsist: !!productConsist[item]}
+// 表头数据
+const tableCell = computed(() => {
+  if (!productGZ.value[0]) {
+    return []
+  }
+  return productGZ.value.slice(0, 1)[0].map((cellItem, index) => {
+    return {label: cellItem, prop: `${index}`}
+
+  })
 })
 
+// 列表数据
+const tableData = computed(() => {
+  return productGZ.value.slice(1).map(row => {
+    const rowData = row.reduce((acc, item, index) => {
+      acc[index] = item
+      return acc
+    }, {})
+    rowData.hasConsist = !!productConsistMap[rowData['0']]
+    return rowData
+  })
+})
+
+// 上传文件
+const beforeUpload = (rawFile) => {
+  loadExcel(rawFile)
+  .then(result => {
+    localStorage.setItem('productGZ', JSON.stringify(result))
+    productGZ.value = result
+    
+  })
+  return false
+}
+
+// 清除数据
+const clearData = () => {
+  localStorage.removeItem('productGZ')
+}
 </script>
 
 

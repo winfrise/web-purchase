@@ -2,23 +2,20 @@
 <template>
   <div>
     <div class="card">
-      <h3>需要零件列表</h3>
-    </div>
+      <div style="display: flex; justify-content: space-between;">
+        <div>生成零件需求</div>
 
-    <div class="card">
-      <el-form label-width="100px" style="padding-right:50px;">
-        <el-form-item label="上传计划表">
-          <el-upload style="width: 100px; height: 100px;"
-              accept=".xlsx"
-              drag
-              action=""
-              multiple
-              :before-upload="beforeUpload"
-          >
-            选择/拖拽
-          </el-upload>
-        </el-form-item>
-      </el-form>
+
+        <div style="display: flex;">
+            <el-upload accept=".xlsx" :before-upload="beforeUpload">
+              <el-button type="primary">上传产品列表</el-button>
+            </el-upload>
+
+            <el-button type="danger" @click="clearData" style="margin-left: 15px;">删除数据</el-button>
+        </div>
+      </div>
+
+
     </div>
 
     <div class="card"  style="height: 800px; margin-top: 20px;">
@@ -85,28 +82,18 @@ import loadExcel from "@/utils/loadExcel";
 
 
 // 获取各型号产品需要零件映射
-const productConsist = JSON.parse(localStorage.getItem('product-consist')) 
+const productConsistMap = JSON.parse(localStorage.getItem('productConsistMap')) 
 
 
 // 获取零件列表
-const partList = JSON.parse(localStorage.getItem("partList"))
-const partListMap = partList.reduce((acc, item) => {
-  acc[item.UDID] = {...item}
-  return acc
-}, {})
+const partListMap = JSON.parse(localStorage.getItem("partListMap"))
 
 // 获取生产在制库存数
-const producingTotalMap = JSON.parse(localStorage.getItem('producingTableData')).reduce((acc, item) => {
-  acc[item[0]] = item[1]
-  return acc
-}, {})
+const producingPartListMap = JSON.parse(localStorage.getItem('producingPartListMap'))
 
 
 // 获取仓库库存数
-const stockTotalMap = JSON.parse(localStorage.getItem('stockTableData')).reduce((acc, item) => {
-  acc[item[0]] = item[1]
-  return acc
-}, {})
+const stockListMap = JSON.parse(localStorage.getItem('stockListMap'))
 
 // 获取需要的管子总数映射
 const needTubeTotalMap = ref({})
@@ -136,8 +123,8 @@ const stampTableData = computed(() => {
       ...partListMap[key],
       count: needStampTotalMap.value[key],
       UDID: key,
-      producingCount: producingTotalMap[key],
-      stockCount: stockTotalMap[key]
+      producingCount: producingPartListMap[key]?.count,
+      stockCount: stockListMap[key]?.count
     }
   })
 })
@@ -149,8 +136,8 @@ const tubeTableData = computed(() => {
       ...partListMap[key],
       count: needTubeTotalMap.value[key],
       UDID: key,
-      producingCount: producingTotalMap[key],
-      stockCount: stockTotalMap[key]
+      producingCount: producingPartListMap[key]?.count,
+      stockCount: stockListMap[key]?.count
     }
   })
 })
@@ -162,8 +149,8 @@ const otherTableData = computed(() => {
       ...partListMap[key],
       count: needOtherTotalMap.value[key],
       UDID: key,
-      producingCount: producingTotalMap[key],
-      stockCount: stockTotalMap[key]
+      producingCount: producingPartListMap[key]?.count,
+      stockCount: stockListMap[key]?.count
     }
   })
 })
@@ -214,12 +201,21 @@ const beforeUpload = (rawFile) => {
   return false
 }
 
+const clearData = () => {
+  localStorage.removeItem('needTubeTotalMap')
+  localStorage.removeItem('needStampTotalMap')
+  localStorage.removeItem('needOtherTotalMap')
+  needTubeTotalMap.value = []
+    needStampTotalMap.value = []
+    needOtherTotalMap.value = []
+}
+
 const genResult = (totalList) => {
   return totalList.reduce((acc, item) => {
     const productName = item[0]
     const productCount = item[1]
 
-    const productPartList = productConsist[productName]
+    const productPartList = productConsistMap[productName]
     if (!productPartList) {
       ElMessage.error(`[${productName}]组成不存在`);
       console.log(`[${productName}]组成不存在`)

@@ -2,33 +2,27 @@
 <template>
   <div>
     <div class="card">
-      <el-form label-width="100px" style="padding-right:50px;">
-        <el-form-item label="上传库存表">
-          <el-upload
-              accept=".xlsx"
-              drag
-              action=""
-              multiple
-              :before-upload="beforeUpload"
-          >
-           选择/拖拽
-            
-          </el-upload>
-        </el-form-item>
+      <div style="display: flex; justify-content: space-between;">
+        <div>库存列表</div>
 
-      </el-form>
+
+        <div style="display: flex;">
+            <el-upload accept=".xlsx" :before-upload="beforeUpload">
+              <el-button type="primary">上传库存列表</el-button>
+            </el-upload>
+
+            <el-button type="danger" @click="clearData" style="margin-left: 15px;">删除数据</el-button>
+        </div>
+      </div>
     </div>
     <div class="card" style="margin-top: 10px; height: 1000px;">
 
-      <el-table  :data="tableData" border style="width: 100%; height: 100%; overflow: auto;">
-        <el-table-column
-            v-for="(cell, cellIndex) in tableCells"
-            :key="cellIndex"
-            :prop="cell.prop"
-            :label="`${cell.label}`"
-            :width="cellIndex === 0 ? 250 : 200"
-            :fixed="cellIndex === 0 ? true : false"
-        />
+      <el-table  :data="stockList" border style="width: 100%; height: 800px; ">
+        <el-table-column type="index" label="序号" />
+        <el-table-column prop="name" label="物料名称" />
+        <el-table-column prop="UDID" label="规格UDID" />
+        <el-table-column prop="unit" label="单位" />
+        <el-table-column prop="count" label="数量" fixed="right" />
       </el-table>
     </div>
 
@@ -38,62 +32,49 @@
 <script setup>
 import {reactive, ref} from "vue"
 import {ElMessage} from "element-plus";
-import * as XLSX from 'xlsx';
+import loadExcel from '@/utils/loadExcel';
 
 
-// 上传月度计划Eexcel表
-const tableCells = ref([])
-const tableData = ref([])
+const stockList = ref([])
 
 setTimeout(() => {
-  const localTableCells = localStorage.getItem('stockTableCells')
-  if (localTableCells) {
-    tableCells.value = JSON.parse(localTableCells)
+  const localStockList = localStorage.getItem('stockList')
+  if (localStockList) {
+    stockList.value = JSON.parse(localStockList)
   }
-
-  const localTableData = localStorage.getItem('stockTableData')
-  if (localTableData) {
-    tableData.value = JSON.parse(localTableData)
-  }
-})
+}, 0)
 
 
+// 上传文件
 const beforeUpload = (rawFile) => {
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const data = new Uint8Array(e.target.result);
-    const workbook = XLSX.read(data, { type: 'array' });
-    const sheetName = workbook.SheetNames[0]; // 获取第一个工作表的名称
-    const worksheet = workbook.Sheets[sheetName]; // 获取工作表对象
-    const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 }); // 转换为JSON，header: 1 表示第一行作为标题行
-    
-
-    tableCells.value = json.shift().map((item, index) => {
-      return {
-        label: item,
-        prop: '' + index
-      }
-    })
-
-    localStorage.setItem('stockTableCells', JSON.stringify(tableCells.value))
-
-    tableData.value = json.map((row, rowIndex) => {
-      return row.reduce((acc, item, index) => {
-        if (item !== undefined) {
-          acc[index] = item
+  loadExcel(rawFile)
+  .then(result => {
+    stockList.value = result.slice(1).map(item => {
+        return {
+            name: item[0],
+            UDID: item[1],
+            unit: item[2],
+            count: item[3]
         }
-        return acc
-      }, {})
     })
+    localStorage.setItem('stockList', JSON.stringify(stockList.value))
+
+    const stockMap = stockList.value.reduce((acc, item) => {
+        acc[item.UDID] = item
+        return acc
+    }, {})
+    localStorage.setItem('stockListMap', JSON.stringify(stockMap))
     
-    localStorage.setItem('stockTableData', JSON.stringify(tableData.value))
-  };
-  reader.readAsArrayBuffer(rawFile);
+  })
   return false
 }
 
-
-
+// 清除数据
+const clearData = () => {
+  localStorage.removeItem('stockList')
+  localStorage.removeItem('stockListMap')
+  stockList.value = []
+}
 
 </script>
 
