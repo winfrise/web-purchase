@@ -1,7 +1,7 @@
-import {createRouter, createWebHistory} from 'vue-router'
+import {createRouter, createWebHistory, createWebHashHistory} from 'vue-router'
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHashHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
@@ -21,7 +21,7 @@ const router = createRouter({
 
         { path: 'calc/plan103', name: 'PLAN103', component: () => import('@/views/calc/plan103.vue')},
         { path: 'calc/gen-part-list', name: 'GEN_PART_LIST', component: () => import('@/views/calc/gen-part-list.vue')},
-        { path: 'calc/gen-plan', name: 'GEN_PLAN', component: () => import('@/views/calcgen-plan.vue')},
+        { path: 'calc/gen-plan', name: 'GEN_PLAN', component: () => import('@/views/calc/gen-plan.vue')},
 
         { path: 'tools/load-excel', name: 'LOAD_EXCEL', component: () => import('@/views/tools/load-excel.vue')},
       ]

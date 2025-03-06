@@ -77,7 +77,7 @@
 
 <script setup>
 import {reactive, ref, computed, watch} from "vue"
-import {ElMessage} from "element-plus";
+import {ElMessage, ElMessageBox} from "element-plus";
 import loadExcel from "@/utils/loadExcel";
 
 
@@ -202,12 +202,16 @@ const beforeUpload = (rawFile) => {
 }
 
 const clearData = () => {
-  localStorage.removeItem('needTubeTotalMap')
-  localStorage.removeItem('needStampTotalMap')
-  localStorage.removeItem('needOtherTotalMap')
-  needTubeTotalMap.value = []
+  ElMessageBox.confirm('是否确定删除？','提示', {type: 'warning'})
+    .then(() => {
+      localStorage.removeItem('needTubeTotalMap')
+      localStorage.removeItem('needStampTotalMap')
+      localStorage.removeItem('needOtherTotalMap')
+      needTubeTotalMap.value = []
     needStampTotalMap.value = []
     needOtherTotalMap.value = []
+    })
+
 }
 
 const genResult = (totalList) => {
