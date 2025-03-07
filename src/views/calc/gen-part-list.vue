@@ -69,8 +69,13 @@
               <el-table-column prop="UDID" label="零件编号" />
               <el-table-column prop="remark" label="备注" />
               <el-table-column prop="supplier" label="供应商" />
-              <el-table-column prop="cate" label="类型" width="180" />
+              <el-table-column prop="cate" label="类型" />
               <el-table-column fixed="right" prop="needCount" label="需要数量" />
+              <el-table-column fixed="right" label="单支重量Kg">
+                <template #default="scope">
+                  {{ calcWeight(scope.row.remark) }}
+                </template>
+              </el-table-column>
               <el-table-column fixed="right" prop="producingCount" label="生产在制" />
               <el-table-column fixed="right" prop="stockCount" label="仓库库存"  />
               <el-table-column fixed="right" prop="needDetail" label="详情"  />
@@ -228,6 +233,15 @@ const clearData = () => {
 
 }
 
+// 根据管的外径，壁厚，长度计算重量 32*1.8*130
+const calcWeight = (str) => {
+  // 重量 = (外径 - 壁厚) × 壁厚 × 0.02466 × 长度
+  const [r, w, l] = str.split('*')
+  return  Math.ceil((r - w) * w * 0.02466 * l / 0.95) / 100
+
+}
+
+// 计算结果
 const genResult = (totalList) => {
   return totalList.reduce((acc, item) => {
     const productName = item[0]
