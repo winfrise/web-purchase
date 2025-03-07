@@ -30,13 +30,13 @@
             <el-table-column prop="UDID" label="零件编号" width="160px" />
             <el-table-column prop="supplier" label="供应商" />
             <el-table-column prop="cate" label="类型" />
-            <el-table-column fixed="right" prop="count" label="需要数量" />
+            <el-table-column fixed="right" prop="needCount" label="需要数量" />
             <el-table-column fixed="right" prop="producingCount" label="生产在制" />
             <el-table-column fixed="right" prop="stockCount" label="仓库库存" />
-            <el-table-column fixed="right" prop="detail" label="详情"  />
+            <el-table-column fixed="right" prop="needDetail" label="详情"  />
             <el-table-column label="尚欠数量" fixed="right">
               <template #default="scope">
-                {{ scope.row.count - (scope.row.producingCount || 0) - (scope.row.stockCount || 0) }}
+                {{ scope.row.needCount - (scope.row.producingCount || 0) - (scope.row.stockCount || 0) }}
               </template>
             </el-table-column>
           </el-table>
@@ -47,15 +47,16 @@
                   <el-table-column type="index" label="序号" width="60" />
                   <el-table-column prop="name" label="零件名称" />
                   <el-table-column prop="UDID" label="零件编号"  />
+                  <el-table-column prop="count" label="个数" />
                   <el-table-column prop="supplier" label="供应商"  />
                   <el-table-column prop="cate" label="类型"  />
-                  <el-table-column fixed="right" prop="count" label="需要数量" />
+                  <el-table-column fixed="right" prop="needCount" label="需要数量" />
                   <el-table-column fixed="right" prop="producingCount" label="生产在制" />
                   <el-table-column fixed="right" prop="stockCount" label="仓库库存" />
-                  <el-table-column fixed="right" prop="detail" label="详情"  />
+                  <el-table-column fixed="right" prop="needDetail" label="详情"  />
                   <el-table-column label="尚欠数量" fixed="right">
                     <template #default="scope">
-                      {{ scope.row.count - (scope.row.producingCount || 0) - (scope.row.stockCount || 0) }}
+                      {{ scope.row.needCount - (scope.row.producingCount || 0) - (scope.row.stockCount || 0) }}
                     </template>
                   </el-table-column>
                 </el-table>
@@ -66,15 +67,16 @@
               <el-table-column type="index" label="序号" width="60" />
               <el-table-column prop="name" label="零件名称" />
               <el-table-column prop="UDID" label="零件编号" />
+              <el-table-column prop="remark" label="备注" />
               <el-table-column prop="supplier" label="供应商" />
               <el-table-column prop="cate" label="类型" width="180" />
-              <el-table-column fixed="right" prop="count" label="需要数量" />
+              <el-table-column fixed="right" prop="needCount" label="需要数量" />
               <el-table-column fixed="right" prop="producingCount" label="生产在制" />
               <el-table-column fixed="right" prop="stockCount" label="仓库库存"  />
-              <el-table-column fixed="right" prop="detail" label="详情"  />
+              <el-table-column fixed="right" prop="needDetail" label="详情"  />
               <el-table-column label="尚欠数量" fixed="right">
                 <template #default="scope">
-                  {{ scope.row.count - (scope.row.producingCount || 0) - (scope.row.stockCount || 0) }}
+                  {{ scope.row.needCount - (scope.row.producingCount || 0) - (scope.row.stockCount || 0) }}
                 </template>
               </el-table-column>
             </el-table>
@@ -162,8 +164,8 @@ const otherTableData = computed(() => {
       ...partListMap[key],
       ...needOtherTotalMap.value[key],
       UDID: key,
-      producingCount: producingPartListMap[key]?.count,
-      stockCount: stockListMap[key]?.count
+      producingCount: producingPartListMap[key]?.count, // 在制品数量
+      stockCount: stockListMap[key]?.count // 库存数
     }
   })
 })
@@ -184,18 +186,17 @@ const beforeUpload = (rawFile) => {
       const otherListMap = {}
       
       Object.keys(result).forEach(key => {
-        const countItem = result[key]
+        const needItem = result[key]
         if (!partListMap[key]) {
           console.log(`${key}在零件列表不存在`)
         } else {
           const cate = partListMap[key].cate
-          console.log(cate)
           if (cate === '管子') {
-            tubeListMap[key] = countItem
+            tubeListMap[key] = needItem
           } else if (cate === '冲压件') {
-            stampListMap[key] = countItem
+            stampListMap[key] = needItem
           } else {
-            otherListMap[key] = countItem
+            otherListMap[key] = needItem
           }
         }
 
@@ -233,7 +234,6 @@ const genResult = (totalList) => {
     const productCount = item[1]
 
     const productPartList = productConsistMap[productName]
-    console.log(productPartList)
     if (!productPartList) {
       ElMessage.error(`[${productName}]组成不存在`);
       console.log(`[${productName}]组成不存在`)
@@ -241,15 +241,15 @@ const genResult = (totalList) => {
     } else {
       productPartList.forEach(partItem => {
         if (!acc[partItem.UDID]) {
-          acc[partItem.UDID] = {count: 0, detail: ''}
+          acc[partItem.UDID] = {...partItem,  needCount: 0, needDetail: ''}
         }
 
         const needCount = productCount * (partItem.count || 1)
-        acc[partItem.UDID].count += needCount
-        if (acc[partItem.UDID].detail) {
-          acc[partItem.UDID].detail += " | "
+        acc[partItem.UDID].needCount += needCount
+        if (acc[partItem.UDID].needDetail) {
+          acc[partItem.UDID].needDetail += " | "
         }
-        acc[partItem.UDID].detail += `${productName},${productCount}`
+        acc[partItem.UDID].needDetail += `${productName},${productCount}`
       })
     }
 
