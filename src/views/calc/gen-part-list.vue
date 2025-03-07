@@ -42,7 +42,7 @@
           </el-table>
         </el-tab-pane>
 
-        <el-tab-pane label="长材" name="second">
+        <el-tab-pane label="其他" name="second">
             <el-table :data="otherTableData" stripe >
                   <el-table-column type="index" label="序号" width="60" />
                   <el-table-column prop="name" label="零件名称" />
@@ -60,7 +60,8 @@
                   </el-table-column>
                 </el-table>
               </el-tab-pane>
-              <el-tab-pane label="其他" name="third">
+
+              <el-tab-pane label="长材" name="third">
                 <el-table :data="tubeTableData" stripe>
               <el-table-column type="index" label="序号" width="60" />
               <el-table-column prop="name" label="零件名称" />
@@ -232,6 +233,7 @@ const genResult = (totalList) => {
     const productCount = item[1]
 
     const productPartList = productConsistMap[productName]
+    console.log(productPartList)
     if (!productPartList) {
       ElMessage.error(`[${productName}]组成不存在`);
       console.log(`[${productName}]组成不存在`)
@@ -241,12 +243,13 @@ const genResult = (totalList) => {
         if (!acc[partItem.UDID]) {
           acc[partItem.UDID] = {count: 0, detail: ''}
         }
+
         const needCount = productCount * (partItem.count || 1)
         acc[partItem.UDID].count += needCount
         if (acc[partItem.UDID].detail) {
           acc[partItem.UDID].detail += " | "
         }
-        acc[partItem.UDID].detail += `${productName},${needCount}`
+        acc[partItem.UDID].detail += `${productName},${productCount}`
       })
     }
 
