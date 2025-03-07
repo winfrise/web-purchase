@@ -146,7 +146,7 @@ const tubeTableData = computed(() => {
   return Object.keys(needTubeTotalMap.value).map(key => {
     return {
       ...partListMap[key],
-      ...needStampTotalMap.value[key],
+      ...needTubeTotalMap.value[key],
       UDID: key,
       producingCount: producingPartListMap[key]?.count,
       stockCount: stockListMap[key]?.count
@@ -159,7 +159,7 @@ const otherTableData = computed(() => {
   return Object.keys(needOtherTotalMap.value).map(key => {
     return {
       ...partListMap[key],
-      ...needStampTotalMap.value[key],
+      ...needOtherTotalMap.value[key],
       UDID: key,
       producingCount: producingPartListMap[key]?.count,
       stockCount: stockListMap[key]?.count
