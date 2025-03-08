@@ -6,6 +6,6 @@ pinia.use(piniaPluginPersistedstate)
 
 export default pinia
 
-export { useProductStore } from './modules-static/product'
-export { useProductConsistStore } from './modules-static/product-consist'
-export { usePartStore } from './modules-static/part'
+export { useProductGZStore } from './modules-static/productGZ.js'
+export { useProductConsistStore } from './modules-static/product-consist.js'
+export { usePartStore } from './modules-static/part.js'

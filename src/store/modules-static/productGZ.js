@@ -1,10 +1,9 @@
 import { defineStore } from 'pinia'
 
 
-export const useProductStore = defineStore({
-  id: 'productStore',
+export const useProductGZStore = defineStore('productGZStore',{
   state: () => ({
-
+  
   }),
 
   actions: {
