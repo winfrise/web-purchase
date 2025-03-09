@@ -17,12 +17,13 @@
     </div>
     <div class="card" style="margin-top: 10px; height: 1000px">
 
-      <el-table  :data="producingPartList" border style="width: 100%; height: 100%; overflow: auto;">
+      <el-table  :data="relateStore.producingSplitList" border>
         <el-table-column label="序号" type="index" fixed></el-table-column>
-        <el-table-column label="型号UDID" prop="UDID"/>
-        <el-table-column label="在制零件数" prop="count"/>
-        <el-table-column label="总成" prop="ownProduct"/>
         <el-table-column label="名称" prop="name"/>
+        <el-table-column label="型号UDID" prop="UDID"/>
+        <el-table-column label="单位" prop="unit"/>
+        <el-table-column label="在制零件数" prop="count"/>
+        <el-table-column label="在制详情" prop="detail"/>
         <el-table-column label="备注" prop="remark"/>
       </el-table>
     </div>
@@ -34,39 +35,31 @@
 import {reactive, ref} from "vue"
 import {ElMessage} from "element-plus";
 import loadExcel from '@/utils/loadExcel';
+import {useRelateStore} from '@/store'
+const relateStore = useRelateStore()
 
 
-
-const producingPartList = ref([])
-
-setTimeout(() => {
-  const localProducingPartList = localStorage.getItem('producingPartList')
-  if (localProducingPartList) {
-    producingPartList.value = JSON.parse(localProducingPartList)
-  }
-})
 
 
 // 上传文件
 const beforeUpload = (rawFile) => {
   loadExcel(rawFile)
   .then(result => {
-    producingPartList.value = result.slice(1).map(item => {
-        return {
-            UDID: item[0],
-            count: item[1],
-            ownProduct: item[2],
-            name: item[3],
-            remark: item[4]
-        }
-    })
-    localStorage.setItem('producingPartList', JSON.stringify(producingPartList.value))
+    const producingSplitList = result.slice(1).reduce((acc, item) => {
+      const [name, UDID, unit, count, belong, remark] = item
+      console.log(UDID)
+      const index = acc.findIndex(accItem => accItem.UDID === UDID)
+      console.log(index)
+      if (index < 0) {
+        acc.push({ name, UDID, unit, count, detail: `${belong}/${count}`,  remark})
+      } else {
+        acc[index].count += count
+        acc[index].detail += ` , ${belong}/${count}`
+      }
+      return acc
+    }, [])
 
-    const producingPartListMap = producingPartList.value.reduce((acc, item) => {
-        acc[item.UDID] = item
-        return acc
-    }, {})
-    localStorage.setItem('producingPartListMap', JSON.stringify(producingPartListMap))
+    relateStore.setProducingSplitList(producingSplitList)
     
   })
   return false
@@ -74,9 +67,10 @@ const beforeUpload = (rawFile) => {
 
 // 清除数据
 const clearData = () => {
-  localStorage.removeItem('producingPartList')
-  localStorage.removeItem('producingPartListMap')
-  producingPartList.value = []
+  ElMessageBox.confirm('是否确定删除零件数据？', '警告', { type: 'warning' })
+        .then(() => {
+            relateStore.clearProducingSplitList()
+        })
 }
 
 

@@ -20,7 +20,7 @@ const router = createRouter({
         { path: 'dynamic/stock', name: 'STOCK', component: () => import('@/views/dynamic/stock.vue')},
 
         { path: 'calc/plan103', name: 'PLAN103', component: () => import('@/views/calc/plan103.vue')},
-        { path: 'calc/gen-part-list', name: 'GEN_PART_LIST', component: () => import('@/views/calc/gen-part-list.vue')},
+        { path: 'calc/gen-part-need', name: 'GEN_PART_LIST', component: () => import('@/views/calc/gen-part-need.vue')},
         { path: 'calc/gen-plan', name: 'GEN_PLAN', component: () => import('@/views/calc/gen-plan.vue')},
 
         { path: 'tools/load-excel', name: 'LOAD_EXCEL', component: () => import('@/views/tools/load-excel.vue')},

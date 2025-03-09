@@ -17,7 +17,7 @@
     </div>
     <div class="card" style="margin-top: 10px; height: 1000px;">
 
-      <el-table  :data="stockList" border style="width: 100%; height: 800px; ">
+      <el-table  :data="relateStore.stockList" border>
         <el-table-column type="index" label="序号" />
         <el-table-column prop="name" label="物料名称" />
         <el-table-column prop="UDID" label="规格UDID" />
@@ -33,23 +33,16 @@
 import {reactive, ref} from "vue"
 import {ElMessage} from "element-plus";
 import loadExcel from '@/utils/loadExcel';
+import { useRelateStore } from '@/store';
+const relateStore = useRelateStore()
 
-
-const stockList = ref([])
-
-setTimeout(() => {
-  const localStockList = localStorage.getItem('stockList')
-  if (localStockList) {
-    stockList.value = JSON.parse(localStockList)
-  }
-}, 0)
 
 
 // 上传文件
 const beforeUpload = (rawFile) => {
   loadExcel(rawFile)
   .then(result => {
-    stockList.value = result.slice(1).map(item => {
+    const stockList = result.slice(1).map(item => {
         return {
             name: item[0],
             UDID: item[1],
@@ -57,14 +50,8 @@ const beforeUpload = (rawFile) => {
             count: item[3]
         }
     })
-    localStorage.setItem('stockList', JSON.stringify(stockList.value))
-
-    const stockMap = stockList.value.reduce((acc, item) => {
-        acc[item.UDID] = item
-        return acc
-    }, {})
-    localStorage.setItem('stockListMap', JSON.stringify(stockMap))
     
+    relateStore.setStockList(stockList)
   })
   return false
 }

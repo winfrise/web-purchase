@@ -71,7 +71,7 @@
               <span>豫北计划</span>
             </el-menu-item>
 
-            <el-menu-item index="/calc/gen-part-list">
+            <el-menu-item index="/calc/gen-part-need">
               <span>生成零件列表</span>
             </el-menu-item>
 

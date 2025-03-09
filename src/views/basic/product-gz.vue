@@ -19,16 +19,16 @@
     </div>
     <div class="card" style="margin-top: 10px;">
       <el-table border
-        :data="tableData"
-        style="width: 100%; margin-bottom: 20px"
+        :data="productStore.productList"
       >
         <el-table-column type="index" label="序号" width="60" />
 
-        <el-table-column v-for="(item, index) in tableCell" :prop="item.prop" :label="item.label" :key="index" />
+        <el-table-column  prop="UDID" label="UDID" />
+        <el-table-column  prop="remark" label="备注" />
 
         <el-table-column label="是否有组成" fixed="right">
           <template #default="scope">
-            <span>{{ scope.row.hasConsist ? "是" : "-" }}</span>
+            <span>{{ productStore.productConsistMap[scope.row.UDID] ? "是" : "-" }}</span>
           </template>
         </el-table-column>
       </el-table>
@@ -42,44 +42,21 @@
 import {computed, ref} from "vue"
 import loadExcel from '@/utils/loadExcel'
 
-const productConsistMap = JSON.parse(localStorage.getItem('productConsistMap')) || {}
-const localProductGZ = JSON.parse(localStorage.getItem('productGZ'))
+import { useProductStore } from "@/store"
+
+const productStore = useProductStore()
 
 
-const productGZ = ref([])
-if (localProductGZ) {
-  productGZ.value = localProductGZ
-}
-
-// 表头数据
-const tableCell = computed(() => {
-  if (!productGZ.value[0]) {
-    return []
-  }
-  return productGZ.value.slice(0, 1)[0].map((cellItem, index) => {
-    return {label: cellItem, prop: `${index}`}
-
-  })
-})
-
-// 列表数据
-const tableData = computed(() => {
-  return productGZ.value.slice(1).map(row => {
-    const rowData = row.reduce((acc, item, index) => {
-      acc[index] = item
-      return acc
-    }, {})
-    rowData.hasConsist = !!productConsistMap[rowData['0']]
-    return rowData
-  })
-})
 
 // 上传文件
 const beforeUpload = (rawFile) => {
   loadExcel(rawFile)
   .then(result => {
-    localStorage.setItem('productGZ', JSON.stringify(result))
-    productGZ.value = result
+    const productList = result.slice(1).map(item => ({
+      UDID: item[0],
+      remark: item[1]
+    }))
+    productStore.setProductList(productList)
     
   })
   return false
@@ -87,7 +64,10 @@ const beforeUpload = (rawFile) => {
 
 // 清除数据
 const clearData = () => {
-  localStorage.removeItem('productGZ')
+  ElMessageBox.confirm('是否确定删除产品数据？','警告', {type: 'warning'})
+    .then(() => {
+      productStore.clearProductList()
+    })
 }
 </script>
 

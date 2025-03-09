@@ -20,16 +20,15 @@
             :data="tableData"
             :span-method="objectSpanMethod"
             border
-            style="width: 100%; height: 800px; overflow: auto; margin-top: 20px"
         >
             <el-table-column label="序号" type="index" width="80" fixed />
-            <el-table-column label="产品型号" prop="product" width="180" />
+            <el-table-column label="产品UDID" prop="UDID" width="180" />
             <el-table-column label="名称" prop="name" width="180" />
-            <el-table-column label="UDID" prop="UDID" />
+            <el-table-column label="零件UDID" prop="partUDID" />
             <el-table-column label="备注" prop="remark" />
             <el-table-column label="数量" prop="count" />
             <el-table-column label="供应商" prop="supplier" />
-            <el-table-column label="所属型号" prop="parent" />
+            <el-table-column label="所属型号" prop="belong" />
         </el-table>
       </div>
 
@@ -37,60 +36,30 @@
   </template>
   
   <script setup>
-  import {reactive, ref, computed} from "vue"
-import loadExcel from '@/utils/loadExcel'
+    import {reactive, ref, computed} from "vue"
+    import loadExcel from '@/utils/loadExcel'
+    import { useProductStore } from "@/store"
 
+    const productStore = useProductStore()
 
-  
-    const localProductConsist = JSON.parse(localStorage.getItem('productConsist'))
-    const localProductConsistMap = JSON.parse(localStorage.getItem('productConsistMap'))
-    const productConsist = ref([])
-    const productConsistMap = ref({})
-
-    if (localProductConsist) {
-        productConsist.value = localProductConsist
-    }
-
-    if (localProductConsistMap) {
-        productConsistMap.value = localProductConsistMap
-    }
-    // 表头数据
-    const tableCell = computed(() => {
-        if (!productConsist.value[0]) {
-            return []
-        }
-        return productConsist.value.slice(0, 1)[0].map((cellItem, index) => {
-            return {label: cellItem, prop: `${index}`}
-
-        })
-    })
-
-    // 列表数据
     const tableData = computed(() => {
-        return productConsist.value.map(row => {
-            const rowspan = row.product ? productConsistMap.value[row.product].length : 0
-            const colspan = 0
-            return {...row, rowspan, colspan}
+        console.log(productStore.productConsistMap)
+        return productStore.productConsist.map(item => {
+            return ({
+                ...item
+            })
         })
     })
-   
-    // const tableData = ref([])
-    // tableData.value =Object.keys(productConsist).map(key=> {
-    //     return productConsist[key].map((item, index) => {
-    //         const rowspan = index === 0 ? productConsist[key].length : 0
-    //         const colspan = index === 0 ? 1 : 0
-    //         return {...item, product: key, rowspan , colspan}
-    //     })
-    // }).flat()
+
      
     const objectSpanMethod = ({ row, column, rowIndex, columnIndex}) => {
-        if ([0,1].includes(columnIndex)) {
-            return {
-                rowspan: row.rowspan,
-                colspan: 1,
-
+        if ([1].includes(columnIndex)) {
+            if (row.UDID) {
+                return {rowspan:  productStore.productConsistMap[row.UDID].length, colspan: 1}
+            } else {
+                return {rowspan: 0, colspan: 0}
             }
-        }
+        } 
     }
 
 
@@ -98,35 +67,23 @@ import loadExcel from '@/utils/loadExcel'
 const beforeUpload = (rawFile) => {
   loadExcel(rawFile)
   .then(result => {
-    productConsist.value = result.slice(1).map(item => {
+    let prevUDID = null
+    const productConsist = result.slice(1).map(item => {
+        if (item[0]) {
+            prevUDID = item[0]
+        }
         return {
-            product: item[0],
+            UDID: item[0],
             name: item[1],
-            UDID: item[2],
+            partUDID: item[2],
             remark: item[3],
             count: item[4],
             supplier: item[5],
-            parent: item[6]
+            belong: item[0] || prevUDID
         }
     })
-    localStorage.setItem('productConsist', JSON.stringify(productConsist.value))
 
-    const productMap = {}
-    let preKey = null
-    productConsist.value.forEach(item => {
-        const currKey = item.product
-        if (currKey) {
-            if (!productMap[currKey]) {
-                productMap[currKey] = []
-            }
-            productMap[currKey].push(item)
-            preKey = currKey
-        } else {
-            productMap[preKey].push(item)
-        }
-    })
-    localStorage.setItem('productConsistMap', JSON.stringify(productMap))
-    productConsistMap.value = productMap
+    productStore.setProductConsist(productConsist)
     
   })
   return false
@@ -134,10 +91,10 @@ const beforeUpload = (rawFile) => {
 
 // 清除数据
 const clearData = () => {
-  localStorage.removeItem('productConsist')
-  localStorage.removeItem('productConsistMap')
-  productConsist.value = []
-  productConsistMap.value = {}
+    ElMessageBox.confirm('是否确定删除产品组成数据？','警告', {type: 'warning'})
+    .then(() => {
+      productStore.clearProductConsist()
+    })
 }
 
   
