@@ -29,6 +29,12 @@ export const useProductStore = defineStore('productStore', {
         }
     },
     getters: {
+        productListMap (state) {
+            return state.productList.reduce((acc, item) => {
+                acc[item.UDID] = item
+                return acc
+            }, {})
+        },
         productConsistMap(state) {
             return state.productConsist.reduce((acc, item) => {
                 const UDID = item.belong

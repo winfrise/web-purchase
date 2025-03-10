@@ -5,7 +5,8 @@ export const useResultStore = defineStore('resultStore', {
     state: () => ({
         stampList: [],
         otherList: [],
-        tubeList: []
+        tubeList: [],
+        gzProductList: []
     }),
 
     actions: {
@@ -18,10 +19,16 @@ export const useResultStore = defineStore('resultStore', {
         setTubeList(tubeList) {
             this.tubeList = tubeList
         },
-        clearData() {
+        clearNeedData() {
             this.stampList = []
             this.otherList = []
             this.tubeList = []
+        },
+        setGzProductList(gzProductList) {
+            this.gzProductList = gzProductList
+        },
+        clearGzProductList() {
+            this.gzProductList = []
         }
     },
     getters: {

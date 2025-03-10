@@ -65,7 +65,9 @@
               <span>计算</span>
             </template>
 
-         
+            <el-menu-item index="/calc/filter-gz-product">
+              <span>过滤产品</span>
+            </el-menu-item>
 
             <el-menu-item index="/calc/plan103">
               <span>豫北计划</span>

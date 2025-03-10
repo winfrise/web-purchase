@@ -151,7 +151,7 @@ const beforeUpload = (rawFile) => {
 const clearData = () => {
     ElMessageBox.confirm('是否确定删除？', '提示', { type: 'warning' })
         .then(() => {
-            resultStore.clearData()
+            resultStore.clearNeedData()
         })
 
 }
