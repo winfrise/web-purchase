@@ -74,11 +74,19 @@
             </el-menu-item>
 
             <el-menu-item index="/calc/gen-part-need">
-              <span>生成零件列表</span>
+              <span>生成零件需求</span>
             </el-menu-item>
 
-            <el-menu-item index="/calc/gen-plan">
-              <span>生成计划</span>
+          </el-sub-menu>
+
+          <el-sub-menu index="9">
+            <template #title>
+              <el-icon><User /></el-icon>
+              <span>批量计算</span>
+            </template>
+
+            <el-menu-item index="/calc-batch/gen-part-need">
+              <span>批量生成需求</span>
             </el-menu-item>
           </el-sub-menu>
 
@@ -88,13 +96,9 @@
               <span>实用工具</span>
             </template>
 
-         
-
             <el-menu-item index="/tools/load-excel">
               <span>加载Excel</span>
             </el-menu-item>
-
-
           </el-sub-menu>
 
         </el-menu>

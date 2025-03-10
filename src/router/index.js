@@ -23,7 +23,9 @@ const router = createRouter({
         { path: 'calc/filter-gz-product', name: 'FILTER_PRODUCT', component: () => import('@/views/calc/filter-gz-product.vue')},
         { path: 'calc/plan103', name: 'PLAN103', component: () => import('@/views/calc/plan103.vue')},
         { path: 'calc/gen-part-need', name: 'GEN_PART_LIST', component: () => import('@/views/calc/gen-part-need.vue')},
-        { path: 'calc/gen-plan', name: 'GEN_PLAN', component: () => import('@/views/calc/gen-plan.vue')},
+        
+        // 批量计算
+        { path: 'calc-batch/gen-part-need', name: 'BATCH_GEN_PART_PLAN', component: () => import('@/views/calc-batch/gen-part-need.vue')},
 
         { path: 'tools/load-excel', name: 'LOAD_EXCEL', component: () => import('@/views/tools/load-excel.vue')},
       ]
