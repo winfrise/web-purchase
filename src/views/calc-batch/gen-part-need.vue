@@ -78,10 +78,9 @@
 import { reactive, ref, computed, watch } from "vue"
 import { ElMessage, ElMessageBox } from "element-plus";
 import loadExcel from "@/utils/loadExcel";
-import { useRelateStore, useProductStore, useResultStore, useBatchResultStore } from '@/store'
+import { useRelateStore, useProductStore, useBatchResultStore } from '@/store'
 const relateStore = useRelateStore()
 const productStore = useProductStore()
-const resultStore = useResultStore()
 const batchResultStore = useBatchResultStore()
 
 const activeName = ref('tube')
@@ -106,7 +105,8 @@ const beforeUpload = (rawFile) => {
 const clearData = () => {
     ElMessageBox.confirm('是否确定删除？', '提示', { type: 'warning' })
         .then(() => {
-            resultStore.clearResultList()
+            batchResultStore.clearResultList()
+            batchResultStore.clearColumnCount()
         })
 
 }
@@ -123,32 +123,36 @@ const calcWeight = (str) => {
 const genResult = (totalList) => {
     let result = []
     totalList.forEach((itemArr) => {
-        itemArr.forEach((item, index) => {
-            if (index === 0) {
+        // 当前行数据处理
+        itemArr.forEach((count, columnIndex) => {
+            // 第1列是UDID
+            if (columnIndex === 0) {
                 return 
             }
-            if (!result[index]) {
-                result[index] = {}
+            // 在结果中添加数据结构
+            if (!result[columnIndex]) {
+                result[columnIndex] = {}
             }
 
             const productUDID = itemArr[0]
-            const productCount = item
+            const productCount = count
             const productPartList = productStore.productConsistMap[productUDID] // 当前产品需要的零件列表
             if (!productPartList) {
                 ElMessage.error(`[${productUDID}]组成不存在`);
                 console.log(`[${productUDID}]组成不存在`)
             } else {
+                // 统计当前产品需要的零件
                 productPartList.forEach(partItem => {
-                    if (!result[index][partItem.partUDID]) {
-                        result[index][partItem.partUDID] = { partUDID: partItem.partUDID, needCount: 0, needDetail: '' }
+                    if (!result[columnIndex][partItem.partUDID]) {
+                        result[columnIndex][partItem.partUDID] = { partUDID: partItem.partUDID, needCount: 0, needDetail: '' }
                     }
 
                     const needCount = productCount * (partItem.count || 1) // 需要的零件数量
-                    result[index][partItem.partUDID].needCount += needCount
-                    if ( result[index][partItem.partUDID].needDetail) {
-                        result[index][partItem.partUDID].needDetail += " , "
+                    result[columnIndex][partItem.partUDID].needCount += needCount
+                    if ( result[columnIndex][partItem.partUDID].needDetail) {
+                        result[columnIndex][partItem.partUDID].needDetail += " , "
                     }
-                    result[index][partItem.partUDID].needDetail += `${productUDID}/${productCount}`  // 需要的零件详情
+                    result[columnIndex][partItem.partUDID].needDetail += `${productUDID}/${productCount}`  // 需要的零件详情
                 })
             }
         })
@@ -156,18 +160,21 @@ const genResult = (totalList) => {
     })
 
     result = result.filter(item => !!item)
-    batchResultStore.setColumnCount(result.length)
+    batchResultStore.setColumnCount(result.length) // 除了第一列共有几列
 
-    return Object.keys(result[0]).reduce((acc, key) => {
-        const rowItem = {UDID: key}
-        for(let i = 0; i < result.length; i++) {
-            const {needCount, needDetail} = result[i][key]
-            rowItem[`needCount${i+1}`] = needCount
-            rowItem[`needDetail${i+1}`] = needDetail
+    // 合并数据 [[...], [...], [...]] => [item, item2, item3,...]
+    const newResult = Object.keys(result[0]).map((UDID, index) => {
+        let row = {UDID}
+        for(let i = 0; i < batchResultStore.columnCount; i++) {
+            debugger
+            const {needCount, needDetail} = result[i][UDID] || {}
+            row[`needCount${i+1}`] = needCount
+            row[`needDetail${i+1}`] = needDetail
         }
-        acc.push(rowItem)
-        return acc
-    }, []).filter(item => productStore.partListMap[item.UDID]?.cate === '管子')
+        return row
+    })
+
+    return newResult.filter(item => productStore.partListMap[item.UDID]?.cate === '管子')
     
 }
 </script>

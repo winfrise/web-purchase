@@ -4,15 +4,18 @@ import { defineStore } from 'pinia'
 export const useRelateStore = defineStore('relateStore', {
     state: () => ({
         stockList: [],
+        stockHeaders: [],
         producingSplitList: []
     }),
 
     actions: {
-        setStockList(stockList) {
+        setStockList(stockHeaders, stockList) {
+            this.stockHeaders = stockHeaders
             this.stockList = stockList
         },
-        clearStockList(stockList) {
-            this.stockList = stockList
+        clearStockList() {
+            this.stockList = []
+            this.stockHeaders = []
         },
         setProducingSplitList(producingSplitList) {
             this.producingSplitList = producingSplitList

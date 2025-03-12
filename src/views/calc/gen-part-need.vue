@@ -121,7 +121,7 @@ const beforeUpload = (rawFile) => {
             const tubeList = []
             const stampList = []
             const otherList = []
-            console.log(result)
+
             Object.values(result).forEach(needItem => {
                 const UDID = needItem.partUDID
                 if (!productStore.partListMap[UDID]) {

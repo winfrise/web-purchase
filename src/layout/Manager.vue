@@ -16,7 +16,7 @@
       <div style="width: 200px; border-right: 1px solid #ddd; ">
         <el-menu
             router
-            style="border: none"
+            :unique-opened="true"
             :default-active="$route.path"
             :default-openeds="['/home', '2']"
         >
@@ -57,6 +57,10 @@
             <el-menu-item index="/dynamic/producing">
               <span>在制拆分</span>
             </el-menu-item>
+
+            <el-menu-item index="/dynamic/arrived">
+              <span>到货列表</span>
+            </el-menu-item>
           </el-sub-menu>
 
           <el-sub-menu index="4">
@@ -64,10 +68,6 @@
               <el-icon><User /></el-icon>
               <span>计算</span>
             </template>
-
-            <el-menu-item index="/calc/filter-gz-product">
-              <span>过滤产品</span>
-            </el-menu-item>
 
             <el-menu-item index="/calc/plan103">
               <span>豫北计划</span>
@@ -90,11 +90,19 @@
             </el-menu-item>
           </el-sub-menu>
 
-          <el-sub-menu index="9">
+          <el-sub-menu index="10">
             <template #title>
               <el-icon><User /></el-icon>
               <span>实用工具</span>
             </template>
+
+            <el-menu-item index="/tools/filter-gz-product">
+              <span>过滤产品</span>
+            </el-menu-item>
+
+            <el-menu-item index="/tools/match-product-name">
+              <span>匹配名称</span>
+            </el-menu-item>
 
             <el-menu-item index="/tools/load-excel">
               <span>加载Excel</span>

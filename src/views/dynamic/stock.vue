@@ -22,7 +22,11 @@
         <el-table-column prop="name" label="物料名称" />
         <el-table-column prop="UDID" label="规格UDID" />
         <el-table-column prop="unit" label="单位" />
-        <el-table-column prop="count" label="数量" fixed="right" />
+        <el-table-column prop="count" label="数量" />
+
+        <template v-for="(item, index) in relateStore.stockHeaders"  :key="index">
+          <el-table-column  :prop="item.prop" :label="item.label" />
+        </template>
       </el-table>
     </div>
 
@@ -42,25 +46,26 @@ const relateStore = useRelateStore()
 const beforeUpload = (rawFile) => {
   loadExcel(rawFile)
   .then(result => {
+    const stockHeaders = result.slice(0, 1)[0].slice(4).map((item, index) => {
+      return {prop: `${index}`, label: item}
+    })
     const stockList = result.slice(1).map(item => {
-        return {
-            name: item[0],
-            UDID: item[1],
-            unit: item[2],
-            count: item[3]
-        }
+      const [name, UDID, unit, count, ...other] = item
+      const row = { name, UDID, unit, count  }
+      for(let i = 4; i < item.length; i++) {
+        row[i] = item[i]
+      }
+      return row
     })
     
-    relateStore.setStockList(stockList)
+    relateStore.setStockList(stockHeaders, stockList)
   })
   return false
 }
 
 // 清除数据
 const clearData = () => {
-  localStorage.removeItem('stockList')
-  localStorage.removeItem('stockListMap')
-  stockList.value = []
+  relateStore.clearStockList()
 }
 
 </script>
