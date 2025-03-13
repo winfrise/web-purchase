@@ -43,6 +43,9 @@
             <el-menu-item index="/basic/part-list">
               <span>零件列表</span>
             </el-menu-item>
+            <el-menu-item index="/basic/supplier">
+              <span>供应商对照</span>
+            </el-menu-item>
           </el-sub-menu>
 
           <el-sub-menu index="8">

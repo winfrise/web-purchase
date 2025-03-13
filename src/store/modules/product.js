@@ -5,7 +5,8 @@ export const useProductStore = defineStore('productStore', {
     state: () => ({
         productList: [],
         productConsist: [],
-        partList: []
+        partList: [],
+        supplierList: [] // 供应商型号对照表
     }),
 
     actions: {
@@ -26,7 +27,13 @@ export const useProductStore = defineStore('productStore', {
         },
         clearPartList() {
             this.partList = []
-        }
+        },
+        setSupplierList(supplierList) {
+            this.supplierList = supplierList
+        },
+        clearSupplierList() {
+            this.supplierList = []
+        },
     },
     getters: {
         productListMap (state) {
@@ -47,6 +54,12 @@ export const useProductStore = defineStore('productStore', {
         },
         partListMap (state) {
             return state.partList.reduce((acc, item) => {
+                acc[item.UDID] = item
+                return acc
+            }, {})
+        },
+        supplierMapByUDID (state) {
+            return state.supplierList.reduce((acc, item) => {
                 acc[item.UDID] = item
                 return acc
             }, {})

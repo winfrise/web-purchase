@@ -3,11 +3,14 @@
   <div>
     <div class="card">
       <div style="display: flex; justify-content: space-between;">
-        <div>在制品拆分</div>
+        <div>
+          <strong>在制品拆分</strong><br>
+          使用原始EXCEL表。数据从第3行开始，第1行表名，第2行是表头。
+        </div>
 
 
         <div style="display: flex;">
-            <el-upload accept=".xlsx" :before-upload="beforeUpload">
+            <el-upload accept=".xlsx,.xls" :before-upload="beforeUpload">
               <el-button type="primary">上传在制品拆分列表</el-button>
             </el-upload>
 
@@ -16,23 +19,35 @@
       </div>
     </div>
     <div class="card" style="margin-top: 10px; height: 1000px">
-
-      <el-table  :data="relateStore.producingSplitList" border>
-        <el-table-column label="序号" type="index" fixed></el-table-column>
-        <el-table-column label="名称" prop="name"/>
-        <el-table-column label="型号UDID" prop="UDID"/>
-        <el-table-column label="单位" prop="unit"/>
-        <el-table-column label="在制零件数" prop="count"/>
-        <el-table-column label="在制详情" prop="detail"/>
-        <el-table-column label="备注" prop="remark"/>
-      </el-table>
+        <el-tabs type="border-card">
+          <el-tab-pane label="在制品原始数据">
+            <el-table  :data="relateStore.producingSplitList" border>
+              <el-table-column label="序号" type="index" fixed width="80"></el-table-column>
+              <el-table-column label="总成" prop="productUDID"/>
+              <el-table-column label="名称" prop="partName"/>
+              <el-table-column label="型号" prop="partUDID"/>
+              <el-table-column label="在制零件" prop="count"/>
+              <el-table-column label="备注" prop="remark"/>
+            </el-table>
+          </el-tab-pane>
+          <el-tab-pane label="在制品数据汇总">
+            <el-table  :data="Object.values(relateStore.producingSplitListMap)" border>
+              <el-table-column label="序号" type="index" fixed width="80"></el-table-column>
+              <el-table-column label="名称" prop="partName"/>
+              <el-table-column label="型号" prop="partUDID"/>
+              <el-table-column label="在制零件" prop="count"/>
+              <el-table-column label="备注" prop="remark"/>
+              <el-table-column label="总成详情" prop="detail"/>
+            </el-table>
+          </el-tab-pane>
+        </el-tabs>
     </div>
 
   </div>
 </template>
 
 <script setup>
-import {reactive, ref} from "vue"
+import {reactive, ref, computed} from "vue"
 import {ElMessage} from "element-plus";
 import loadExcel from '@/utils/loadExcel';
 import {useRelateStore} from '@/store'
@@ -40,24 +55,15 @@ const relateStore = useRelateStore()
 
 
 
-
 // 上传文件
 const beforeUpload = (rawFile) => {
   loadExcel(rawFile)
   .then(result => {
-    const producingSplitList = result.slice(1).reduce((acc, item) => {
-      const [name, UDID, unit, count, belong, remark] = item
-      console.log(UDID)
-      const index = acc.findIndex(accItem => accItem.UDID === UDID)
-      console.log(index)
-      if (index < 0) {
-        acc.push({ name, UDID, unit, count, detail: `${belong}/${count}`,  remark})
-      } else {
-        acc[index].count += count
-        acc[index].detail += ` , ${belong}/${count}`
-      }
-      return acc
-    }, [])
+    const producingSplitList = result.slice(2).map((item, index) => {
+      const [productUDID, partName, partUDID, count, remark] = item
+      
+      return {productUDID, partName, partUDID, count, remark}
+    })
 
     relateStore.setProducingSplitList(producingSplitList)
     

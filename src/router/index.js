@@ -11,10 +11,11 @@ const router = createRouter({
       children: [
         { path: 'home', name: 'Home', component: () => import('@/views/manager/Home.vue')},
     
-
+        // 基础数据
         { path: 'basic/product-gz', name: 'PRODUCT_GZ', component: () => import('@/views/basic/product-gz.vue')},
         { path: 'basic/product-consist', name: 'PRODUCT_CONSIST', component: () => import('@/views/basic/product-consist.vue')},
         { path: 'basic/part-list', name: 'PART_LIST', component: () => import('@/views/basic/part-list.vue')},
+        { path: 'basic/supplier', name: 'SUPPLIER', component: () => import('@/views/basic/supplier.vue')},
 
         // 动态数据
         { path: 'dynamic/producing', name: 'PRODUCING', component: () => import('@/views/dynamic/producing.vue')},

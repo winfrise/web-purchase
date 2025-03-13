@@ -4,8 +4,8 @@
     <div class="card">
       <div style="display: flex; justify-content: space-between;">
         <div>
-          <strong>库存列表</strong><br>
-          使用原始的库存EXCEL。数据从第3行开始，第1行表名，第2行是表头。
+          <strong>到货列表</strong><br>
+          使用原始的到货EXCEL。数据从第3行开始，第1行表名，第2行是表头。
         </div>
 
 
@@ -19,7 +19,7 @@
       </div>
     </div>
     <div class="card" style="margin-top: 10px; height: 1000px;">
-      <el-table  :data="relateStore.stockList" border>
+      <el-table  :data="relateStore.arrivedList" border>
         <el-table-column type="index" label="序号" />
         <el-table-column prop="materialCode" label="物料代码" />
         <el-table-column prop="materialName" label="物料名称" />
@@ -49,20 +49,20 @@ const relateStore = useRelateStore()
 const beforeUpload = (rawFile) => {
   loadExcel(rawFile)
   .then(result => {
-    const stockList = result.slice(2).map(item => {
+    const arrivedList = result.slice(2).map(item => {
       const [materialCode, materialName, UDID, warehouseName, unit, count, expireDate, remark, systemRemark] = item
       const row = { materialCode, materialName, UDID, warehouseName, unit, count, expireDate, remark, systemRemark  }
       return row
     })
     
-    relateStore.setStockList(stockList)
+    relateStore.setArrivedList(arrivedList)
   })
   return false
 }
 
 // 清除数据
 const clearData = () => {
-  relateStore.clearStockList()
+  relateStore.clearArrivedList()
 }
 
 </script>

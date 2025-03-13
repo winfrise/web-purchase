@@ -3,14 +3,11 @@
   <div>
     <div class="card">
       <div style="display: flex; justify-content: space-between;">
-        <div>
-          <strong>库存列表</strong><br>
-          使用原始的库存EXCEL。数据从第3行开始，第1行表名，第2行是表头。
-        </div>
+        <div>库存列表</div>
 
 
         <div style="display: flex;">
-            <el-upload accept=".xlsx,.xls" :before-upload="beforeUpload">
+            <el-upload accept=".xlsx" :before-upload="beforeUpload">
               <el-button type="primary">上传库存列表</el-button>
             </el-upload>
 
@@ -19,7 +16,11 @@
       </div>
     </div>
     <div class="card" style="margin-top: 10px; height: 1000px;">
+
       <el-table  :data="relateStore.stockList" border>
+
+      物料代码  物料名称  规格型号  仓库名称  常用计量单位名称  常用计量单位数量  到期日 备注
+
         <el-table-column type="index" label="序号" />
         <el-table-column prop="materialCode" label="物料代码" />
         <el-table-column prop="materialName" label="物料名称" />
@@ -30,6 +31,11 @@
         <el-table-column prop="expireDate" label="到期日" />
         <el-table-column prop="remark" label="备注" />
         <el-table-column prop="systemRemark" label="系统备注" />
+
+
+        <template v-for="(item, index) in relateStore.stockHeaders"  :key="index">
+          <el-table-column  :prop="item.prop" :label="item.label" />
+        </template>
       </el-table>
     </div>
 
@@ -49,13 +55,19 @@ const relateStore = useRelateStore()
 const beforeUpload = (rawFile) => {
   loadExcel(rawFile)
   .then(result => {
-    const stockList = result.slice(2).map(item => {
-      const [materialCode, materialName, UDID, warehouseName, unit, count, expireDate, remark, systemRemark] = item
-      const row = { materialCode, materialName, UDID, warehouseName, unit, count, expireDate, remark, systemRemark  }
+    const stockHeaders = result.slice(0, 1)[0].slice(4).map((item, index) => {
+      return {prop: `${index}`, label: item}
+    })
+    const stockList = result.slice(1).map(item => {
+      const [name, UDID, unit, count, ...other] = item
+      const row = { name, UDID, unit, count  }
+      for(let i = 4; i < item.length; i++) {
+        row[i] = item[i]
+      }
       return row
     })
     
-    relateStore.setStockList(stockList)
+    relateStore.setStockList(stockHeaders, stockList)
   })
   return false
 }

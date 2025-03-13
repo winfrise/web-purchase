@@ -2,35 +2,35 @@
 <template>
   <div>
     <div class="card">
-      <el-form label-width="100px" style="padding-right:50px;">
-        <el-form-item label="上传计划表">
-          <el-upload
-              accept=".xlsx"
-              drag
-              action=""
-              multiple
-              :before-upload="beforeUpload"
-          >
-            <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-            <div class="el-upload__text">
-              Drop file here or <em>click to upload</em>
-            </div>
-            
-          </el-upload>
-        </el-form-item>
+      <div style="display: flex; justify-content: space-between;">
+          <div>
+            <strong>月计划表</strong><br>
+            使用原始计划表，第5行是表头，从第6行开始是数据,第1列是产品型号，可能有隐藏行
+          </div>
 
-      </el-form>
+
+          <div style="display: flex;">
+              <el-upload accept=".xlsx,.xls" :before-upload="beforeUpload">
+                  <el-button type="primary">上传</el-button>
+              </el-upload>
+
+              <el-button type="danger" @click="clearData" style="margin-left: 15px;">删除数据</el-button>
+          </div>
+      </div>
     </div>
     <div class="card" style="margin-top: 10px;">
 
-      <el-table  :data="tableData" border style="width: 100%; height: 500px; overflow: auto;">
-        <el-table-column
-            v-for="(cell, cellIndex) in tableCells"
+      <el-table  :data="monthPlanStore.monthPlanList" border>
+        <el-table-column label="供应商" width="100">
+          <template #default="scope">
+            {{productStore.supplierMapByUDID[scope.row["0"]]?.supplier}}
+          </template>
+        </el-table-column>
+        <el-table-column width="100"
+            v-for="(cell, cellIndex) in monthPlanStore.monthPlanHeaders"
             :key="cellIndex"
             :prop="cell.prop"
             :label="`${cell.label}`"
-            :width="cellIndex === 0 ? 150 : 50"
-            :fixed="cellIndex === 0 ? true : false"
         />
       </el-table>
     </div>
@@ -41,62 +41,38 @@
 <script setup>
 import {reactive, ref} from "vue"
 import {ElMessage} from "element-plus";
-import * as XLSX from 'xlsx';
+import loadExcel from '@/utils/loadExcel'
+import { useMonthPlanStore, useProductStore } from '@/store'
+const monthPlanStore = useMonthPlanStore()
+const productStore = useProductStore()
 
 
-// 上传月度计划Eexcel表
-const tableCells = ref([])
-const tableData = ref([])
 
-setTimeout(() => {
-  const localTableCells = localStorage.getItem('plan103TableCells')
-  if (localTableCells) {
-    tableCells.value = JSON.parse(localTableCells)
-  }
-
-  const localTableData = localStorage.getItem('plan103TableData')
-  if (localTableData) {
-    tableData.value = JSON.parse(localTableData)
-  }
-})
-
-
+// 上传文件
 const beforeUpload = (rawFile) => {
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const data = new Uint8Array(e.target.result);
-    const workbook = XLSX.read(data, { type: 'array' });
-    const sheetName = workbook.SheetNames[0]; // 获取第一个工作表的名称
-    const worksheet = workbook.Sheets[sheetName]; // 获取工作表对象
-    const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 }); // 转换为JSON，header: 1 表示第一行作为标题行
-    
+  loadExcel(rawFile)
+  .then(result => {
 
-    tableCells.value = json.shift().map((item, index) => {
-      return {
-        label: item,
-        prop: '' + index
-      }
+    const tableHeaders = result.slice(4, 5)[0].map((item, index) => {
+      return { prop: `${index}`, label: item}
     })
 
-    localStorage.setItem('plan103TableCells', JSON.stringify(tableCells.value))
-
-    tableData.value = json.map((row, rowIndex) => {
-      return row.reduce((acc, item, index) => {
-        if (item !== undefined) {
-          acc[index] = item
-        }
+    const tableData = result.slice(5).map(item => {
+      return item.reduce((acc, item, index) => {
+        acc[index] = item
         return acc
       }, {})
     })
+
+    monthPlanStore.setMonthPlanList(tableHeaders, tableData)
     
-    localStorage.setItem('plan103TableData', JSON.stringify(tableData.value))
-  };
-  reader.readAsArrayBuffer(rawFile);
+  })
   return false
 }
 
-
-
+const clearData = () => {
+  monthPlanStore.clearMonthPlanList()
+}
 
 </script>
 
