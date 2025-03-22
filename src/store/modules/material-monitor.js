@@ -7,7 +7,7 @@ export const useMaterialMonitorStore = defineStore('materialMonitorStore', {
         assemRelate: {data: []},
         stock: {data: []},
         producing: {data: []},
-        arrivedList: [],
+        arrived: {data: []},
         plan: {headers: [], data: []},
         result: {data: []}
         
@@ -42,11 +42,11 @@ export const useMaterialMonitorStore = defineStore('materialMonitorStore', {
             this.producing = {data}
         },
 
-        setArrivedList(list) {
-            this.arrivedList = list
+        setArrived({data}) {
+            this.arrived = {data}
         },
-        clearArrivedList() {
-            this.arrivedList = []
+        clearArrived() {
+            this.arrived={data}
         },
 
         setPlan({headers, data}) {
@@ -64,8 +64,8 @@ export const useMaterialMonitorStore = defineStore('materialMonitorStore', {
         },
     },
     getters: {
-        arrivedListMap(state) {
-            return state.arrivedList.reduce((acc, item) => {
+        arrivedMap(state) {
+            return state.arrived.data.reduce((acc, item) => {
                 acc[item.UDID] = item
                 return acc
             }, {})

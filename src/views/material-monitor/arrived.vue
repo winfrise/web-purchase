@@ -11,7 +11,7 @@
 
         <div style="display: flex;">
             <el-upload accept=".xlsx,.xls" :before-upload="beforeUpload">
-              <el-button type="primary">上传库存列表</el-button>
+              <el-button type="primary">上传到货列表</el-button>
             </el-upload>
 
             <el-button type="danger" @click="clearData" style="margin-left: 15px;">删除数据</el-button>
@@ -19,17 +19,14 @@
       </div>
     </div>
     <div class="card" style="margin-top: 10px; height: 1000px;">
-      <el-table  :data="relateStore.arrivedList" border>
+      <el-table  :data="materialMonitorStore.arrived.data" border>
         <el-table-column type="index" label="序号" />
-        <el-table-column prop="materialCode" label="物料代码" />
-        <el-table-column prop="materialName" label="物料名称" />
-        <el-table-column prop="UDID" label="规格型号UDID" />
-        <el-table-column prop="warehouseName" label="仓库名称" />
-        <el-table-column prop="unit" label="单位" />
-        <el-table-column prop="count" label="数量" />
-        <el-table-column prop="expireDate" label="到期日" />
-        <el-table-column prop="remark" label="备注" />
-        <el-table-column prop="systemRemark" label="系统备注" />
+        <el-table-column prop="supplier" label="供应商" />
+        <el-table-column prop="name" label="名称" />
+        <el-table-column prop="UDID" label="型号UDID" />
+        <el-table-column prop="remark" label="规格、备注" />
+        <el-table-column prop="count" label="本月来料" />
+        
       </el-table>
     </div>
 
@@ -40,8 +37,8 @@
 import {reactive, ref} from "vue"
 import {ElMessage} from "element-plus";
 import loadExcel from '@/utils/loadExcel';
-import { useRelateStore } from '@/store';
-const relateStore = useRelateStore()
+import { useMaterialMonitorStore } from '@/store';
+const materialMonitorStore = useMaterialMonitorStore()
 
 
 
@@ -49,20 +46,20 @@ const relateStore = useRelateStore()
 const beforeUpload = (rawFile) => {
   loadExcel(rawFile)
   .then(result => {
-    const arrivedList = result.slice(2).map(item => {
-      const [materialCode, materialName, UDID, warehouseName, unit, count, expireDate, remark, systemRemark] = item
-      const row = { materialCode, materialName, UDID, warehouseName, unit, count, expireDate, remark, systemRemark  }
+    const list = result.slice(2).map(item => {
+      const [supplier, name, UDID, remark, count] = item
+      const row = { supplier, name, UDID, remark, count }
       return row
     })
     
-    relateStore.setArrivedList(arrivedList)
+    materialMonitorStore.setArrived({data: list})
   })
   return false
 }
 
 // 清除数据
 const clearData = () => {
-  relateStore.clearArrivedList()
+  materialMonitorStore.clearArrived()
 }
 
 </script>
