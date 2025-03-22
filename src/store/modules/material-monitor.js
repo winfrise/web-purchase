@@ -93,6 +93,22 @@ export const useMaterialMonitorStore = defineStore('materialMonitorStore', {
                 return acc
             }, {})
         },
+        stockMap(state) {
+            return state.stock.data.reduce((acc, item) => {
+                acc[item.UDID] = item
+                return acc
+            }, {})
+        },
+        producingMap(state) {
+            return state.producing.data.reduce((acc, item) => {
+                if (!acc[item.assem]) {
+                    acc[item.assem] = {}
+                }
+
+                acc[item.assem][item.UDID] = item
+                return acc
+            }, {})
+        },
     },
     persist: true,
 })

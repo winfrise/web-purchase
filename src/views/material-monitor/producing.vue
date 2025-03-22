@@ -21,9 +21,9 @@
     <div class="card" style="margin-top: 10px; height: 1000px">
       <el-table  :data="materialMonitorStore.producing.data" border>
         <el-table-column label="序号" type="index" fixed width="80"></el-table-column>
-        <el-table-column label="总成" prop="productUDID"/>
-        <el-table-column label="名称" prop="partName"/>
-        <el-table-column label="型号" prop="partUDID"/>
+        <el-table-column label="总成" prop="assem"/>
+        <el-table-column label="名称" prop="name"/>
+        <el-table-column label="型号" prop="UDID"/>
         <el-table-column label="在制零件" prop="count"/>
         <el-table-column label="备注" prop="remark"/>
       </el-table>
@@ -46,9 +46,9 @@ const beforeUpload = (rawFile) => {
   loadExcel(rawFile)
   .then(result => {
     const producingList = result.slice(2).map((item, index) => {
-      const [productUDID, partName, partUDID, count, remark] = item
+      const [assem, name, UDID, count, remark] = item
       
-      return {productUDID, partName, partUDID, count, remark}
+      return {assem, name, UDID, count, remark}
     })
 
     materialMonitorStore.setProducing({data: producingList})
