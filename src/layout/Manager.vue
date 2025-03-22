@@ -112,6 +112,43 @@
             </el-menu-item>
           </el-sub-menu>
 
+          <el-sub-menu index="100">
+            <template #title>
+              <el-icon><User /></el-icon>
+              <span>物料监控</span>
+            </template>
+
+            <el-menu-item index="/material-monitor/assem-bom">
+              <span>总成BOM</span>
+            </el-menu-item>
+
+            <el-menu-item index="/material-monitor/assem-relate">
+              <span>总成关系</span>
+            </el-menu-item>
+
+            <el-menu-item index="/material-monitor/stock">
+              <span>仓库库存</span>
+            </el-menu-item>
+
+            <el-menu-item index="/material-monitor/producing">
+              <span>在制库存</span>
+            </el-menu-item>
+
+            <el-menu-item index="/material-monitor/arrived">
+              <span>到货数量</span>
+            </el-menu-item>
+
+            <el-menu-item index="/material-monitor/plan">
+              <span>装配计划</span>
+            </el-menu-item>
+
+            <el-menu-item index="/material-monitor/result">
+              <span>物实结果</span>
+            </el-menu-item>
+
+
+          </el-sub-menu>
+
         </el-menu>
       </div>
 

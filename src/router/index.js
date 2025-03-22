@@ -33,6 +33,15 @@ const router = createRouter({
         { path: 'tools/filter-gz-product', name: 'FILTER_PRODUCT', component: () => import('@/views/tools/filter-gz-product.vue')},
         { path: 'tools/match-product-name', name: 'MATCH_PRODUCT_NAME', component: () => import('@/views/tools/match-product-name.vue')},
         { path: 'tools/load-excel', name: 'LOAD_EXCEL', component: () => import('@/views/tools/load-excel.vue')},
+
+        // 物实监控
+        { path: '/material-monitor/assem-bom', name: 'MATERIAL_MONITOR_ASSEM_BOM', component: () => import('@/views/material-monitor/assem-bom.vue')},
+        { path: '/material-monitor/assem-relate', name: 'MATERIAL_MONITOR_ASSEM_RELATE', component: () => import('@/views/material-monitor/assem-relate.vue')},
+        { path: '/material-monitor/stock', name: 'MATERIAL_MONITOR_STOCK', component: () => import('@/views/material-monitor/stock.vue')},
+        { path: '/material-monitor/producing', name: 'MATERIAL_MONITOR_PRODUCING', component: () => import('@/views/material-monitor/producing.vue')},
+        { path: '/material-monitor/arrived', name: 'MATERIAL_MONITOR_ARRIVED', component: () => import('@/views/material-monitor/arrived.vue')},
+        { path: '/material-monitor/plan', name: 'MATERIAL_MONITOR_PLAN', component: () => import('@/views/material-monitor/plan.vue')},
+        { path: '/material-monitor/result', name: 'MATERIAL_MONITOR_RESULT', component: () => import('@/views/material-monitor/result.vue')},
       ]
     }
   ]

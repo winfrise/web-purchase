@@ -1,0 +1,98 @@
+import { defineStore } from 'pinia'
+
+
+export const useMaterialMonitorStore = defineStore('materialMonitorStore', {
+    state: () => ({
+        assemBom: {data: []},
+        assemRelate: {data: []},
+        stock: {data: []},
+        producing: {data: []},
+        arrivedList: [],
+        plan: {headers: [], data: []},
+        result: {data: []}
+        
+    }),
+
+    actions: {
+        setAssemBom({data}) {
+            this.assemBom = {data}
+        },
+        clearAssemBom() {
+            this.assemBom = {data: []}
+        },
+
+        setAssemRelate({data}) {
+            this.assemRelate = {data}
+        },
+        clearAssemRelate() {
+            this.assemRelate = {data: []}
+        },
+
+        setStock({data}) {
+            this.stock = {data}
+        },
+        clearStock() {
+            this.stock = {data: []}
+        },
+
+        setProducing({data}) {
+            this.producing = {data}
+        },
+        clearProducing() {
+            this.producing = {data}
+        },
+
+        setArrivedList(list) {
+            this.arrivedList = list
+        },
+        clearArrivedList() {
+            this.arrivedList = []
+        },
+
+        setPlan({headers, data}) {
+            this.plan = {headers, data}
+        },
+        clearPlan() {
+            this.plan = {headers: [], data: []}
+        },
+
+        setResultList(list) {
+            this.resultList = list
+        },
+        clearResultList() {
+            this.resultList = []
+        },
+    },
+    getters: {
+        arrivedListMap(state) {
+            return state.arrivedList.reduce((acc, item) => {
+                acc[item.UDID] = item
+                return acc
+            }, {})
+        },
+        assemRelateMap(state) {
+            const map = {}
+
+            state.assemRelate.data.forEach(item => {
+                item.productList.forEach(productItem => {
+                    map[productItem] = item.assem
+                })
+            })
+
+            return map
+        },
+        assemBomMap(state) {
+            let assem = ''
+            return state.assemBom.data.reduce((acc, item) => {
+                if (item.assem) {
+                    assem = item.assem
+                    acc[assem] = []
+                }
+
+                acc[assem].push(item)
+                return acc
+            }, {})
+        },
+    },
+    persist: true,
+})
