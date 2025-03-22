@@ -86,14 +86,15 @@ const calc = () => {
       }
 
       // 在制数
-      const producingItem = materialMonitorStore.producingMap[currAssem] || {}
-      const producingCount = producingItem[bomItem.code]?.count || 0
+      // const producingItem = materialMonitorStore.producingMap[currAssem] || {}
+      // const producingCount = producingItem[bomItem.code]?.count || 0
 
-      // TODO:需要修改
+      // 保存 对应关系
       resultMap[bomItem.code].needList.push({
         name: currProduct,
         needCount: currTotal,
-        producingCount: producingCount,
+        code: bomItem.code,
+        // producingCount: producingCount,
         assem: currAssem
       })
     })
@@ -102,32 +103,45 @@ const calc = () => {
   // 最后的数据处理
   Object.keys(resultMap).forEach(key => {
     const item = resultMap[key]
-    debugger
     const {needList} = item
 
-    let producingCount = 0
-    let needCount = 0
     if (needList.length === 1) {
-      producingCount = needList[0].producingCount
-      needCount = needList[0].needCount
+      item.producingCount = needList[0].producingCount
+      item.needCount = needList[0].needCount
     } else {
-      needList.forEach(needItem => {
-        producingCount += Math.min(needItem.producingCount, needItem.needCount)
-        needCount += needItem.needCount
+      const needListMap = {}
+      needList.forEach((needItem) => {
+        if (!needListMap[needItem.assem]) {
+          // 在制数
+          const producingItem = materialMonitorStore.producingMap[needItem.assem] || {}
+          const producingCount = producingItem[needItem.code]?.count || 0
+          needListMap[needItem.assem] = {
+            producingCount: producingCount,
+            needCount: 0
+          }
+        }
+        needListMap[needItem.assem].needCount += needItem.needCount
+      })
+      console.log(needListMap)
+      Object.keys(needListMap).forEach(key => {
+        const needItem = needListMap[key]
+        item.producingCount = Math.min(needItem.producingCount, needItem.needCount)
+        item.needCount = needItem.needCount
       })
     }
+    console.log(resultMap)
 
     let stockCount = materialMonitorStore.stockMap[item.code]?.count
     let arrivedCount = materialMonitorStore.arrivedMap[item.code]?.count
 
-    item.needCount = needCount !== undefined ? needCount : 'unknow'
-    item.producingCount = producingCount !== undefined ? producingCount :  'unknow'
-    item.stockCount =  stockCount !== undefined ? stockCount : 'unknow' // 库存数
-    item.arrivedCount = arrivedCount !== undefined ? arrivedCount : 'unknow' // 当月来料数
-    item.oweCount = needCount - (producingCount || 0) - (stockCount || 0) - (arrivedCount || 0)
+
+    item.stockCount = stockCount // 库存数
+    item.arrivedCount = arrivedCount // 当月来料数
+    item.oweCount = item.needCount - (item.producingCount || 0) - (item.stockCount || 0) - (item.arrivedCount || 0)
   })
 
   result.value.data =  Object.values(resultMap)
+  console.log(Object.values(resultMap))
 }
 
 setTimeout(() => {
