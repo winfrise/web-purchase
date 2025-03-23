@@ -18,7 +18,7 @@
           </div>
       </div>
     </div>
-    <div class="card" style="margin-top: 10px; ">
+    <div class="card table-container" style="margin-top: 10px; ">
 
       <el-table  :data="materialMonitorStore.plan.data" border>
         <el-table-column width="100"
@@ -26,6 +26,7 @@
             :key="cellIndex"
             :prop="cell.prop"
             :label="`${cell.label}`"
+            :fixed="cellIndex < 3 ? 'left' : false"
         />
         <el-table-column prop="total" label=""></el-table-column>
       </el-table>

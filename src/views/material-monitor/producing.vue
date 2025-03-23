@@ -18,7 +18,7 @@
         </div>
       </div>
     </div>
-    <div class="card" style="margin-top: 10px; height: 1000px">
+    <div class="card table-container" style="margin-top: 10px;">
       <el-table  :data="materialMonitorStore.producing.data" border>
         <el-table-column label="序号" type="index" fixed width="80"></el-table-column>
         <el-table-column label="总成" prop="assem"/>

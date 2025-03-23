@@ -13,13 +13,13 @@
                 </div>
             </div>
         </div>
-        <div class="card" style="margin-top: 10px; ">
+        <div class="card table-container" style="margin-top: 10px; ">
             <el-table :data="result.data" border>
-                <el-table-column type="index" label="序号" />
-                <el-table-column label="总成" prop="assem" />
-                <el-table-column label="供应商" prop="supplier" />
-                <el-table-column label="名称" prop="name" />
-                <el-table-column label="型号" prop="code" />
+                <el-table-column type="index" label="序号" fixed="left" />
+                <el-table-column label="总成" prop="assem" fixed="left" />
+                <el-table-column label="供应商" prop="supplier" fixed="left" />
+                <el-table-column label="名称" prop="name" fixed="left" />
+                <el-table-column label="型号" prop="code" fixed="left" />
                 <el-table-column label="规格、备注" prop="remark" />
                 <el-table-column label="订单数量" prop="needCount" />
                 <el-table-column label="库存数量" prop="stockCount" />
@@ -31,9 +31,10 @@
                 <el-table-column width="300" label="详情" prop="">
                     <template #default="scope">
                         <span v-for="(assemName, index) in Object.keys(scope.row.relateListMap)" :key="index">
-                            <span>【{{ assemName }}-{{ scope.row.relateListMap[assemName].producingCount }}】</span>|
+                            <span>【{{ assemName }},{{ scope.row.relateListMap[assemName].producingCount }}】</span>
                             <span v-for="(productItem, productIndex) in scope.row.relateListMap[assemName].productList" :key="productIndex">
-                                <span>{{ productItem.productName }}-{{ productItem.productCount }},</span>
+                                <span>{{ productItem.productName }},{{ productItem.productCount }}</span>
+                                <span v-if="productIndex < scope.row.relateListMap[assemName].productList.length - 1"> | </span>
                             </span>
 
                         </span>
@@ -43,8 +44,8 @@
                 <el-table-column width="300" label="详情" prop="">
                     <template #default="scope">
                         <span v-for="(item, index) in scope.row.relateList" :key="index">
-                            <span>【{{ item.assemName }}-{{ item.producingCount }}】</span>,
-                            <span>{{ item.productName }}-{{ item.productCount }},</span>
+                            <span>【{{ item.assemName }},{{ item.producingCount }}】</span>
+                            <span>{{ item.productName }},{{ item.productCount }}</span>
                         </span>
                     </template>
                 </el-table-column>

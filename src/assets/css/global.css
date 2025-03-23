@@ -1,5 +1,7 @@
 * {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
@@ -60,3 +62,15 @@ a {
     height: 120px;
     text-align: center;
 }
+
+/**
+ * Table容器
+ */
+ .table-container {
+    height: calc(100vh - 160px);
+    width: calc(100vw - 220px)
+ }
+ .table-container > .el-table {
+    height: 100%;
+    width: 100%;
+ }

@@ -12,8 +12,8 @@
       </div>
     </div>
 
-    <div style="display: flex;  height: calc(100vh - 60px)">
-      <div style="width: 200px; border-right: 1px solid #ddd; ">
+    <div style="display: flex;  height: calc(100vh - 80px)">
+      <div style="width: 200px; min-width: 200px; border-right: 1px solid #ddd; ">
         <el-menu
             router
             :unique-opened="true"
