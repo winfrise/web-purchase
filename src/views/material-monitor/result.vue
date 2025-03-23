@@ -107,7 +107,7 @@ const calc = () => {
             }
 
             // 在制数
-            const producingItem = materialMonitorStore.producingMap[currAssem] || {} // 通过总成获取在制数
+            const producingItem = materialMonitorStore.producingMap[currAssem] || materialMonitorStore.producingMap[currProduct] || {} // 通过总成获取在制数
             const producingCount = producingItem[assemBomItem.code]?.count || 0
             // 保存 对应关系
             resultMap[assemBomItem.code].relateList.push({
@@ -126,10 +126,9 @@ const calc = () => {
 
         bomItem.relateListMap = relateList.reduce((acc, relateItem) => {
             if (!acc[relateItem.assemName]) {
-                const producingCount = materialMonitorStore.producingMap[relateItem.assemName]?.[key]?.count || 0 // 当前总成在制生产数
                 acc[relateItem.assemName] = {
                     assemName: relateItem.assemName, // 总成
-                    producingCount: producingCount, // 当前总成的在制数
+                    producingCount: relateItem.producingCount, // 当前总成的在制数
                     productList: [], // 用到该总成的产品信息集合，[{productName: '', productCount: ''}]
                     productTotalCount: 0 // 用到该总成的产品总数
                 }
