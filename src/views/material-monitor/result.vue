@@ -27,6 +27,16 @@
                 <el-table-column label="生产在制" prop="producingCount" />
                 <el-table-column label="来料数量" prop="arrivedCount" />
                 <el-table-column label="尚欠数量" prop="oweCount" />
+                <el-table-column label="采购数量" >
+                    <template #default="scope">
+                        <span v-if="scope.row.oweCount > 0">{{ Math.ceil(scope.row.oweCount / 100) * 100 + 300 }}</span>
+                        <span v-else>--</span>
+                    </template>
+                </el-table-column>
+
+                <el-table-column label="采购详情">
+
+                </el-table-column>
 
                 <el-table-column width="300" label="详情" prop="">
                     <template #default="scope">
@@ -41,6 +51,7 @@
                     </template>
                 </el-table-column>
 
+                <!-- 
                 <el-table-column width="300" label="详情" prop="">
                     <template #default="scope">
                         <span v-for="(item, index) in scope.row.relateList" :key="index">
@@ -48,7 +59,8 @@
                             <span>{{ item.productName }},{{ item.productCount }}</span>
                         </span>
                     </template>
-                </el-table-column>
+                </el-table-column> 
+                -->
             </el-table>
         </div>
 
@@ -151,7 +163,9 @@ const calc = () => {
             if (Object.keys(bomItem.relateListMap).length === 1) {
                 bomItem.producingCount = item.producingCount
             } else {
-                bomItem.producingCount += Math.min(item.producingCount, item.productTotalCount)
+                debugger
+                let realCount = Math.min(item.producingCount, item.productTotalCount)
+                bomItem.producingCount += realCount
             }
 
             if (bomItem.remark?.trim() === '2个') {

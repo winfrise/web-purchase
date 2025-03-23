@@ -29,6 +29,7 @@
         <el-table-column prop="count" label="数量" />
         <el-table-column prop="expireDate" label="到期日" />
         <el-table-column prop="remark" label="备注" />
+        <el-table-column prop="alias" label="别名" />
       </el-table>
     </div>
 
@@ -49,8 +50,8 @@ const beforeUpload = (rawFile) => {
   loadExcel(rawFile)
   .then(result => {
     const stockList = result.slice(2).map(item => {
-      const [materialCode, materialName, UDID, warehouseName, unit, count, expireDate, remark, systemRemark] = item
-      const row = { materialCode, materialName, UDID, warehouseName, unit, count, expireDate, remark, systemRemark  }
+      const [materialCode, materialName, UDID, warehouseName, unit, count, expireDate, remark, alias] = item
+      const row = { materialCode, materialName, UDID, warehouseName, unit, count, expireDate, remark, alias  }
       return row
     })
     
