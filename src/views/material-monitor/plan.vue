@@ -5,7 +5,7 @@
       <div style="display: flex; justify-content: space-between;">
           <div>
             <strong>月计划表</strong><br>
-            使用原始计划表，第1行是表头，从第2行开始是数据,第一列是产品型号,最后一列是总数
+            使用原始计划表，第1行是表头，从第2行开始是数据,第一列是产品型号,最后一列和最后一行是总数
           </div>
 
 

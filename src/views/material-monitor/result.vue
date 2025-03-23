@@ -68,6 +68,13 @@ const calc = () => {
     materialMonitorStore.plan.data.forEach((planItem) => {
         const currProduct = planItem[0]
         const currTotal = planItem.total
+ 
+        if (/^[\u4e00-\u9fa5]+$/.test(currProduct)) { // 判断是否全是汉字
+            // 最后一行是总数，忽略汉字
+            console.log(`已忽略”${currProduct}“`)
+            ElMessage.error(`已忽略“${currProduct}”`)
+            return
+        }
 
         // 查找总成号,判断是否有总成信息
         const currAssem = materialMonitorStore.assemRelateMap[currProduct]
