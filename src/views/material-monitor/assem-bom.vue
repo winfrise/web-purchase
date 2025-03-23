@@ -4,7 +4,7 @@
     <div class="card">
       <div style="display: flex; justify-content: space-between;">
         <div>
-          <strong>库存列表</strong><br>
+          <strong>总成BOM</strong><br>
           总成BOM EXCEL。数据从第3行开始，第1行表名，第2行是表头。
         </div>
 
@@ -58,7 +58,10 @@ const beforeUpload = (rawFile) => {
 
 // 清除数据
 const clearData = () => {
-  materialMonitorStore.clearAssemBom()
+  ElMessageBox.confirm('是否确定删除数据？', '警告', { type: 'warning' })
+        .then(() => {
+          materialMonitorStore.clearAssemBom()
+        })
 }
 
 </script>

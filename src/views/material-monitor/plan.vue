@@ -71,7 +71,10 @@ const beforeUpload = (rawFile) => {
 }
 
 const clearData = () => {
-  materialMonitorStore.clearPlan()
+  ElMessageBox.confirm('是否确定删除数据？', '警告', { type: 'warning' })
+        .then(() => {
+          materialMonitorStore.clearPlan()
+        })
 }
 
 </script>

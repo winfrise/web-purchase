@@ -7,8 +7,7 @@
           <strong>在制品拆分</strong><br>
           使用原始EXCEL表。数据从第3行开始，第1行表名，第2行是表头。
         </div>
-
-
+        
         <div style="display: flex;">
             <el-upload accept=".xlsx,.xls" :before-upload="beforeUpload">
               <el-button type="primary">上传在制品拆分列表</el-button>
@@ -26,6 +25,7 @@
         <el-table-column label="型号" prop="UDID"/>
         <el-table-column label="在制零件" prop="count"/>
         <el-table-column label="备注" prop="remark"/>
+        <el-table-column label="别名" prop="alias"/>
       </el-table>
     </div>
 
@@ -46,9 +46,9 @@ const beforeUpload = (rawFile) => {
   loadExcel(rawFile)
   .then(result => {
     const producingList = result.slice(2).map((item, index) => {
-      const [assem, name, UDID, count, remark] = item
+      const [assem, name, UDID, count, remark, alias] = item
       
-      return {assem, name, UDID, count, remark}
+      return {assem, name, UDID, count, remark, alias}
     })
 
     materialMonitorStore.setProducing({data: producingList})

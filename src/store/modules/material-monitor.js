@@ -39,14 +39,14 @@ export const useMaterialMonitorStore = defineStore('materialMonitorStore', {
             this.producing = {data}
         },
         clearProducing() {
-            this.producing = {data}
+            this.producing = {data: []}
         },
 
         setArrived({data}) {
             this.arrived = {data}
         },
         clearArrived() {
-            this.arrived={data}
+            this.arrived={data: []}
         },
 
         setPlan({headers, data}) {
