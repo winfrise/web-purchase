@@ -27,6 +27,7 @@
             :prop="cell.prop"
             :label="`${cell.label}`"
         />
+        <el-table-column prop="total" label=""></el-table-column>
       </el-table>
     </div>
 
@@ -52,11 +53,12 @@ const beforeUpload = (rawFile) => {
     })
 
     const tableData = result.slice(1).map(rowItem => {
+      rowItem.length = result[0].length // 去掉超出的列
       return rowItem.reduce((acc, item, index) => {
         acc[index] = item
         if (index === rowItem.length - 1) {
           acc.total = item
-        }
+        } 
         return acc
       }, {})
     })

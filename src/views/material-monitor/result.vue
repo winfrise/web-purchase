@@ -1,157 +1,181 @@
-
 <template>
-  <div>
-    <div class="card">
-      <div style="display: flex; justify-content: space-between;">
-          <div>
-            <strong>结果</strong><br>
-            
-          </div>
+    <div>
+        <div class="card">
+            <div style="display: flex; justify-content: space-between;">
+                <div>
+                    <strong>结果</strong><br>
+
+                </div>
 
 
-          <div style="display: flex;">
-              <el-button type="danger" @click="clearData" style="margin-left: 15px;">删除数据</el-button>
-          </div>
-      </div>
-    </div>
-    <div class="card" style="margin-top: 10px; ">
-      <el-table  :data="result.data" border>
-        <el-table-column type="index" label="序号" />
-        <el-table-column label="总成" prop="assem" />
-        <el-table-column label="供应商" prop="supplier" />
-        <el-table-column label="名称" prop="name" />
-        <el-table-column label="型号" prop="code" />
-        <el-table-column label="规格、备注" prop="remark" />
-        <el-table-column label="订单数量" prop="needCount" />
-        <el-table-column label="库存数量" prop="stockCount" />
-
-        <el-table-column label="生产在制" prop="producingCount" />
-        <el-table-column label="来料数量" prop="arrivedCount" />
-        <el-table-column label="尚欠数量" prop="oweCount" />
-
-        <el-table-column label="" prop="">
-          <template #default="scope">
-            <div v-for="(item, index) in scope.row.needList" :key="index">
-              <span>{{ item.name }}</span>,
-              <span>{{ item.needCount }}</span>,
-              <span>{{ item.assem }}</span>,
-              <span>{{ item.producingCount }}</span> | 
+                <div style="display: flex;">
+                    <el-button type="danger" @click="clearData" style="margin-left: 15px;">删除数据</el-button>
+                </div>
             </div>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
+        </div>
+        <div class="card" style="margin-top: 10px; ">
+            <el-table :data="result.data" border>
+                <el-table-column type="index" label="序号" />
+                <el-table-column label="总成" prop="assem" />
+                <el-table-column label="供应商" prop="supplier" />
+                <el-table-column label="名称" prop="name" />
+                <el-table-column label="型号" prop="code" />
+                <el-table-column label="规格、备注" prop="remark" />
+                <el-table-column label="订单数量" prop="needCount" />
+                <el-table-column label="库存数量" prop="stockCount" />
 
-  </div>
+                <el-table-column label="生产在制" prop="producingCount" />
+                <el-table-column label="来料数量" prop="arrivedCount" />
+                <el-table-column label="尚欠数量" prop="oweCount" />
+
+                <el-table-column width="300" label="详情" prop="">
+                    <template #default="scope">
+                        <span v-for="(assemName, index) in Object.keys(scope.row.relateListMap)" :key="index">
+                            <span>【{{ assemName }}-{{ scope.row.relateListMap[assemName].producingCount }}】</span>|
+                            <span v-for="(productItem, productIndex) in scope.row.relateListMap[assemName].productList" :key="productIndex">
+                                <span>{{ productItem.productName }}-{{ productItem.productCount }},</span>
+                            </span>
+
+                        </span>
+                    </template>
+                </el-table-column>
+
+                <el-table-column width="300" label="详情" prop="">
+                    <template #default="scope">
+                        <span v-for="(item, index) in scope.row.relateList" :key="index">
+                            <span>【{{ item.assemName }}-{{ item.producingCount }}】</span>,
+                            <span>{{ item.productName }}-{{ item.productCount }},</span>
+                        </span>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </div>
+
+    </div>
 </template>
 
 <script setup>
-import {reactive, ref} from "vue"
-import {ElMessage} from "element-plus";
+import { reactive, ref } from "vue"
+import { ElMessage } from "element-plus";
 import loadExcel from '@/utils/loadExcel'
 import { useMaterialMonitorStore } from '@/store'
 const materialMonitorStore = useMaterialMonitorStore()
 
 
-const result = ref({data: []})
+const result = ref({ data: [] })
 const calc = () => {
-  const resultMap = {}
-  materialMonitorStore.plan.data.forEach((planItem) => {
-    const currProduct = planItem[0]
-    const currTotal = planItem.total
-    
-    // 查找总成号
-    const currAssem = materialMonitorStore.assemRelateMap[currProduct]
-    if (!currAssem) {
-      console.log(`${currProduct}找不到总成`)
-      ElMessage.error(`${currProduct}找不到总成`)
-      return
-    }
+    const resultMap = {}
+    materialMonitorStore.plan.data.forEach((planItem) => {
+        const currProduct = planItem[0]
+        const currTotal = planItem.total
 
-    const currAssemBom =  materialMonitorStore.assemBomMap[currAssem]
-    if (!currAssemBom) {
-      console.log(`产品${currProduct}-总成${currAssem}找不到Bom`)
-      ElMessage.error(`产品${currProduct}-总成${currAssem}找不到总成`)
-      return 
-    }
-
-    currAssemBom.forEach(bomItem => {
-      if (!resultMap[bomItem.code]) {
-        resultMap[bomItem.code] = {...bomItem} // 基本信息
-        resultMap[bomItem.code].needCount = 0 // 需要数量
-        resultMap[bomItem.code].needProducts = [] // 用到该零件的产品型号
-        resultMap[bomItem.code].producingCount = 0 // 在制生产数
-        resultMap[bomItem.code].needList = []
-        resultMap[bomItem.code].stockCount = 0
-      }
-
-      // 在制数
-      // const producingItem = materialMonitorStore.producingMap[currAssem] || {}
-      // const producingCount = producingItem[bomItem.code]?.count || 0
-
-      // 保存 对应关系
-      resultMap[bomItem.code].needList.push({
-        name: currProduct,
-        needCount: currTotal,
-        code: bomItem.code,
-        // producingCount: producingCount,
-        assem: currAssem
-      })
-    })
-  })
-
-  // 最后的数据处理
-  Object.keys(resultMap).forEach(key => {
-    const item = resultMap[key]
-    const {needList} = item
-
-    if (needList.length === 1) {
-      item.producingCount = needList[0].producingCount
-      item.needCount = needList[0].needCount
-    } else {
-      const needListMap = {}
-      needList.forEach((needItem) => {
-        if (!needListMap[needItem.assem]) {
-          // 在制数
-          const producingItem = materialMonitorStore.producingMap[needItem.assem] || {}
-          const producingCount = producingItem[needItem.code]?.count || 0
-          needListMap[needItem.assem] = {
-            producingCount: producingCount,
-            needCount: 0
-          }
+        // 查找总成号,判断是否有总成信息
+        const currAssem = materialMonitorStore.assemRelateMap[currProduct]
+        if (!currAssem) {
+            console.log(`${currProduct}找不到总成`)
+            ElMessage.error(`${currProduct}找不到总成`)
+            return
         }
-        needListMap[needItem.assem].needCount += needItem.needCount
-      })
-      console.log(needListMap)
-      Object.keys(needListMap).forEach(key => {
-        const needItem = needListMap[key]
-        item.producingCount = Math.min(needItem.producingCount, needItem.needCount)
-        item.needCount = needItem.needCount
-      })
-    }
-    console.log(resultMap)
 
-    let stockCount = materialMonitorStore.stockMap[item.code]?.count
-    let arrivedCount = materialMonitorStore.arrivedMap[item.code]?.count
+        // 查找总成的Bom，判断是否有Bom信息
+        const currAssemBom = materialMonitorStore.assemBomMap[currAssem]
+        if (!currAssemBom) {
+            console.log(`产品${currProduct}-总成${currAssem}找不到Bom`)
+            ElMessage.error(`产品${currProduct}-总成${currAssem}找不到总成`)
+            return
+        }
 
 
-    item.stockCount = stockCount // 库存数
-    item.arrivedCount = arrivedCount // 当月来料数
-    item.oweCount = item.needCount - (item.producingCount || 0) - (item.stockCount || 0) - (item.arrivedCount || 0)
-  })
+        currAssemBom.forEach(assemBomItem => {
+            // 如果结果中没有当前物料，初始化当前物料信息
+            if (!resultMap[assemBomItem.code]) {
+                resultMap[assemBomItem.code] = {
+                    ...assemBomItem,
+                    needCount: 0, // 需要数量
+                    producingCount: 0, // 在制生产数
+                    relateList: [], // 总成、产品关系列表
+                    stockCount: 0 // 库存数
+                }
 
-  result.value.data =  Object.values(resultMap)
-  console.log(Object.values(resultMap))
+            }
+
+            // 在制数
+            const producingItem = materialMonitorStore.producingMap[currAssem] || {} // 通过总成获取在制数
+            const producingCount = producingItem[assemBomItem.code]?.count || 0
+            // 保存 对应关系
+            resultMap[assemBomItem.code].relateList.push({
+                productName: currProduct,
+                productCount: currTotal,
+                producingCount: producingCount,
+                assemName: currAssem
+            })
+        })
+    })
+
+    // 最后的数据处理
+    Object.keys(resultMap).forEach(key => {
+        const bomItem = resultMap[key]
+        const { relateList } = bomItem
+
+        bomItem.relateListMap = relateList.reduce((acc, relateItem) => {
+            if (!acc[relateItem.assemName]) {
+                const producingCount = materialMonitorStore.producingMap[relateItem.assemName]?.[key]?.count || 0 // 当前总成在制生产数
+                acc[relateItem.assemName] = {
+                    assemName: relateItem.assemName, // 总成
+                    producingCount: producingCount, // 当前总成的在制数
+                    productList: [], // 用到该总成的产品信息集合，[{productName: '', productCount: ''}]
+                    productTotalCount: 0 // 用到该总成的产品总数
+                }
+            }
+
+            acc[relateItem.assemName].productList.push({
+                productName: relateItem.productName,
+                productCount: relateItem.productCount
+            })
+            acc[relateItem.assemName].productTotalCount += relateItem.productCount
+
+            return acc
+        }, {})
+
+
+        // 计算总成的在制生产数
+        Object.values(bomItem.relateListMap).forEach((item) => {
+
+            if (Object.keys(bomItem.relateListMap).length === 1) {
+                bomItem.producingCount = item.producingCount
+            } else {
+                bomItem.producingCount += Math.min(item.producingCount, item.productTotalCount)
+            }
+
+            if (bomItem.remark?.trim() === '2个') {
+                bomItem.needCount += 2 * item.productTotalCount
+            } else {
+                bomItem.needCount += item.productTotalCount
+            }
+        })
+
+
+
+        let stockCount = materialMonitorStore.stockMap[bomItem.code]?.count
+        let arrivedCount = materialMonitorStore.arrivedMap[bomItem.code]?.count
+
+
+        bomItem.stockCount = stockCount // 库存数
+        bomItem.arrivedCount = arrivedCount // 当月来料数
+        bomItem.oweCount = bomItem.needCount - (bomItem.producingCount || 0) - (bomItem.stockCount || 0) - (bomItem.arrivedCount || 0)
+    })
+
+    result.value.data = Object.values(resultMap)
+    console.log(Object.values(resultMap))
 }
 
 setTimeout(() => {
-  calc()
+    calc()
 })
 
 
 
 const clearData = () => {
-  
+
 }
 </script>
-
