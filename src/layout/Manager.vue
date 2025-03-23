@@ -143,7 +143,7 @@
             </el-menu-item>
 
             <el-menu-item index="/material-monitor/result">
-              <span>物实结果</span>
+              <span>计算结果</span>
             </el-menu-item>
 
 
