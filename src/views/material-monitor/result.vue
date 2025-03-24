@@ -38,7 +38,18 @@
 
                 </el-table-column>
 
-                <el-table-column width="300" label="详情" prop="">
+                <el-table-column width="300" label="使用详情">
+                    <template #default="scope">
+                        <span v-for="(assemName, index) in Object.keys(scope.row.relateListMap)" :key="index">
+                            {{ assemName }},{{ scope.row.relateListMap[assemName].producingCount }},{{ scope.row.relateListMap[assemName].productTotalCount }}
+                            <template v-if="index < Object.keys(scope.row.relateListMap).length - 1"> ｜ </template>
+                        </span>
+                    </template>
+                </el-table-column>
+
+
+
+                <el-table-column width="300" label="详细" prop="">
                     <template #default="scope">
                         <span v-for="(assemName, index) in Object.keys(scope.row.relateListMap)" :key="index">
                             <span>【{{ assemName }},{{ scope.row.relateListMap[assemName].producingCount }}】</span>
