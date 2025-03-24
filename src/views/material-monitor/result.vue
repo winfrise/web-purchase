@@ -163,7 +163,6 @@ const calc = () => {
             if (Object.keys(bomItem.relateListMap).length === 1) {
                 bomItem.producingCount = item.producingCount
             } else {
-                debugger
                 let realCount = Math.min(item.producingCount, item.productTotalCount)
                 bomItem.producingCount += realCount
             }
