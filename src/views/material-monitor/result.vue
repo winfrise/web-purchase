@@ -38,6 +38,12 @@
 
                 </el-table-column>
 
+                <el-table-column label="总成数量">
+                    <template #default="scope">
+                        {{Object.keys(scope.row.relateListMap).length}}
+                    </template>
+                </el-table-column>
+
                 <el-table-column width="300" label="使用详情">
                     <template #default="scope">
                         <span v-for="(assemName, index) in Object.keys(scope.row.relateListMap)" :key="index">
