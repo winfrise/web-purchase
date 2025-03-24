@@ -38,11 +38,26 @@
 
                 </el-table-column>
 
+                <el-table-column label="尚欠开始时间" prop="oweStartDate" />
+
+
                 <el-table-column label="总成数量">
                     <template #default="scope">
                         {{Object.keys(scope.row.relateListMap).length}}
                     </template>
                 </el-table-column>
+
+
+
+                <el-table-column width="300" label="欠缺详情" >
+                    <template #default="scope">
+                        <template v-for="(item, index) in scope.row.oweDetailList">
+                            {{item.join(',')}}
+                             | 
+                        </template>
+                    </template>
+                </el-table-column>
+
 
                 <el-table-column width="300" label="使用详情">
                     <template #default="scope">
@@ -52,7 +67,6 @@
                         </span>
                     </template>
                 </el-table-column>
-
 
 
                 <el-table-column width="300" label="详细" prop="">
@@ -80,7 +94,6 @@
                 -->
             </el-table>
         </div>
-
     </div>
 </template>
 
@@ -154,6 +167,7 @@ const calc = () => {
         const bomItem = resultMap[key]
         const { relateList } = bomItem
 
+        // 数据汇总
         bomItem.relateListMap = relateList.reduce((acc, relateItem) => {
             if (!acc[relateItem.assemName]) {
                 acc[relateItem.assemName] = {
@@ -200,6 +214,32 @@ const calc = () => {
         bomItem.stockCount = stockCount // 库存数
         bomItem.arrivedCount = arrivedCount // 当月来料数
         bomItem.oweCount = bomItem.needCount - (bomItem.producingCount || 0) - (bomItem.stockCount || 0) - (bomItem.arrivedCount || 0)
+
+        // 计算欠缺时间节点
+        bomItem.oweDetailList = [] // 详细列表
+        bomItem.oweStartDate = []
+        if (bomItem.oweCount > 0) {
+            let lastCount = 0
+            let oweDetailList = []
+            for (let i = materialMonitorStore.plan.headers.length - 2; i > 5; i--) {
+                const columnName = materialMonitorStore.plan.headers[i].label
+                bomItem.relateList.forEach(relateItem => {
+                    const productName = relateItem.productName
+                    let dayCount = materialMonitorStore.planMap[productName][i]
+                    if (dayCount > 0) {
+                        lastCount += dayCount
+
+                        
+                        oweDetailList.push([`列名${columnName}`, productName, dayCount])
+                    }
+                })
+                if (lastCount >= bomItem.oweCount) {
+                    bomItem.oweStartDate = `列${columnName}`
+                    break
+                }
+            }
+            bomItem.oweDetailList = oweDetailList
+        }
     })
 
     result.value.data = Object.values(resultMap)

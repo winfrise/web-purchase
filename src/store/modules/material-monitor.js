@@ -111,6 +111,13 @@ export const useMaterialMonitorStore = defineStore('materialMonitorStore', {
                 return acc
             }, {})
         },
+        planMap(state) {
+            return state.plan.data.reduce((acc, item) => {
+                const productName = item[0]
+                acc[productName] = item
+                return acc
+            }, {})
+        }
     },
     persist: true,
 })
